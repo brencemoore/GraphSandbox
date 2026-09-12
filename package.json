@@ -1,0 +1,24 @@
+{
+  "name": "graphsandbox",
+  "version": "1.0.0",
+  "description": "A sandbox for creating and analyzing graphs\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[Dsimple graphs",
+  "homepage": "https://github.com/brencemoore/GraphSandbox#readme",
+  "bugs": {
+    "url": "https://github.com/brencemoore/GraphSandbox/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brencemoore/GraphSandbox.git"
+  },
+  "license": "ISC",
+  "author": "Brence Moore",
+  "type": "commonjs",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.8",
+    "cytoscape": "^3.34.3"
+  }
+}
