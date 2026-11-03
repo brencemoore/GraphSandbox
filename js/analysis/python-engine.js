@@ -1,10 +1,10 @@
 // Python Engine
-// Loads Pyodide with NetworkX and calls the Python functions in py/ (analysis and export).
+// Loads Pyodide with NetworkX and calls the Python functions in py/ (analysis and file import/export).
 
 const PythonEngine = (() => {
 
     const PACKAGES = ["numpy", "scipy", "networkx"];
-    const SCRIPT_URLS = ["py/graph_math.py", "py/graph_export.py"];
+    const SCRIPT_URLS = ["py/graph_math.py", "py/graph_io.py"];
 
     let enginePromise = null;
     let ready = false;
@@ -59,26 +59,32 @@ const PythonEngine = (() => {
     }
 
 
-    // Calls a Python function that takes (name, graph JSON) and returns text.
+    // Calls a Python function with string arguments; it returns text.
     // Function proxies are kept so Pyodide does not create a new one per call.
-    async function call(functionName, name, graphData) {
+    async function call(functionName, ...args) {
         const pyodide = await load();
         pythonFunctions[functionName] ??= pyodide.globals.get(functionName);
-        return pythonFunctions[functionName](name, JSON.stringify(graphData));
+        return pythonFunctions[functionName](...args);
     }
 
 
     async function run(analysisName, graphData) {
-        return JSON.parse(await call("run_analysis", analysisName, graphData));
+        return JSON.parse(await call("run_analysis", analysisName, JSON.stringify(graphData)));
     }
 
 
     // Returns the file contents for a data format such as "graphml" or "edges_csv".
     function exportGraph(format, graphData) {
-        return call("export_graph", format, graphData);
+        return call("export_graph", format, JSON.stringify(graphData));
     }
 
 
-    return { load, isReady, run, exportGraph };
+    // Reads a graph file's text; returns the graph (see py/graph_io.py) or { error }.
+    async function importGraph(fileName, text) {
+        return JSON.parse(await call("import_graph", fileName, text));
+    }
+
+
+    return { load, isReady, run, exportGraph, importGraph };
 
 })();

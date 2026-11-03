@@ -8,7 +8,7 @@ const SaveDialog = (() => {
     const PREVIEW_LINES = 40;
     const DEFAULT_NAME = "graph";
 
-    // Data formats are written by py/graph_export.py.
+    // Data formats are written by py/graph_io.py.
     const FORMATS = {
         png: {
             image: true,

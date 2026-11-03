@@ -79,6 +79,18 @@ const GraphTools = (() => {
     }
 
 
+    // Swaps in a whole new graph (e.g. from a file) as one undo step.
+    function replaceGraph(elements) {
+        cancelEdge();
+        GraphHistory.record();
+
+        cy.batch(() => {
+            cy.elements().remove();
+            cy.add(elements);
+        });
+    }
+
+
     // Renames every node (in id order) or edge (in creation order) with the current default pattern, as one undo step.
     // Returns how many were renamed.
     function renameAll(elements, dataKey, style, prefix, fallback) {
@@ -159,14 +171,15 @@ const GraphTools = (() => {
 
 
     // Only select mode selects; it drags a marquee, pan drags the view, other modes only drag nodes.
-    // Touch screens cannot marquee with one finger, so there select mode pans instead.
+    // Touch screens keep panning on in every tool: one finger cannot marquee, and Cytoscape
+    // only pinch-zooms while panning is on. (Mouse-wheel zoom for other tools is in canvas.js.)
     function setTool(tool) {
         cancelEdge();
         activeTool = tool;
 
         cy.autounselectify(tool !== "select");
         cy.boxSelectionEnabled(tool === "select");
-        cy.userPanningEnabled(tool === "pan" || (tool === "select" && IS_TOUCH_SCREEN));
+        cy.userPanningEnabled(tool === "pan" || IS_TOUCH_SCREEN);
         cy.autoungrabify(tool === "pan");
 
         setCursor(MODES[tool].cursor);
@@ -263,22 +276,25 @@ const GraphTools = (() => {
 
     // Cytoscape cannot drag edges, so dragging a selected edge moves
     // the selected nodes and the endpoints of the selected edges.
-    // Cytoscape treats a drag from an edge like the background, so the marquee is paused meanwhile.
+    // Cytoscape treats a drag from an edge like the background, so marquee and panning are paused meanwhile.
     function onEdgePress(event) {
         if (activeTool !== "select" || !event.target.selected()) {
             return;
         }
 
         const selected = cy.elements(":selected");
-        cy.boxSelectionEnabled(false);
 
         edgeDrag = {
+            panning: cy.userPanningEnabled(),
             edge: event.target,
             nodes: selected.nodes().union(selected.edges().connectedNodes()),
             lastPosition: { ...event.position },
             startState: GraphHistory.snapshot(),
             moved: false,
         };
+
+        cy.boxSelectionEnabled(false);
+        cy.userPanningEnabled(false);
     }
 
 
@@ -311,8 +327,9 @@ const GraphTools = (() => {
             setTimeout(() => edge.selectify());
         }
 
-        edgeDrag = null;
         cy.boxSelectionEnabled(activeTool === "select");
+        cy.userPanningEnabled(edgeDrag.panning);
+        edgeDrag = null;
     }
 
 
@@ -370,6 +387,6 @@ const GraphTools = (() => {
     }
 
 
-    return { init, setTool, hint, deleteSelected, clearGraph, renameNodes, renameEdges, undo, redo };
+    return { init, setTool, hint, deleteSelected, clearGraph, replaceGraph, renameNodes, renameEdges, undo, redo };
 
 })();

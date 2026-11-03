@@ -51,22 +51,38 @@ function renameWithFeedback(buttonId, rename, singular) {
 }
 
 
-// Dialogs
+// File Actions
 
 // Asks before clearing, since a new graph deletes the current one.
-function requestNewGraph(cy) {
+async function requestNewGraph(cy) {
     if (cy.elements().empty()) {
         return;
     }
 
-    document.getElementById("newGraphCounts").textContent = document.getElementById("graphCounts").textContent.trim();
-    bootstrap.Modal.getOrCreateInstance("#newGraphModal").show();
+    const counts = document.getElementById("graphCounts").textContent.trim();
+    const confirmed = await ConfirmDialog.ask({
+        title: "Start a new graph?",
+        message: `The current graph (${counts}) will be deleted. You can still bring it back with Undo.`,
+        confirmLabel: "Delete graph",
+    });
+
+    if (confirmed) {
+        GraphTools.clearGraph();
+    }
 }
 
 
-function confirmNewGraph() {
-    GraphTools.clearGraph();
-    bootstrap.Modal.getOrCreateInstance("#newGraphModal").hide();
+// File actions appear twice (header buttons and the phone menu), so they are bound by data-action.
+function bindFileActions(cy) {
+    const actions = {
+        newGraph: () => requestNewGraph(cy),
+        openGraph: OpenGraph.open,
+        saveGraph: SaveDialog.open,
+    };
+
+    document.querySelectorAll("[data-action]").forEach(element => {
+        element.addEventListener("click", actions[element.dataset.action]);
+    });
 }
 
 
@@ -104,9 +120,7 @@ function bindControls(cy) {
         button.addEventListener("click", () => selectTool(button.dataset.tool));
     });
 
-    bindButton("newGraph", () => requestNewGraph(cy));
-    bindButton("confirmNewGraph", confirmNewGraph);
-    bindButton("openSave", SaveDialog.open);
+    bindFileActions(cy);
     bindButton("renameNodes", () => renameWithFeedback("renameNodes", GraphTools.renameNodes, "node"));
     bindButton("renameEdges", () => renameWithFeedback("renameEdges", GraphTools.renameEdges, "edge"));
     bindButton("deleteSelected", GraphTools.deleteSelected);
@@ -192,7 +206,9 @@ function initApp() {
     Inspector.init(cy);
     GraphSummary.init(cy);
     AnalysisPanel.init(cy);
+    ConfirmDialog.init();
     SaveDialog.init(cy);
+    OpenGraph.init(cy);
     Marquee.init(cy);
 
     bindControls(cy);

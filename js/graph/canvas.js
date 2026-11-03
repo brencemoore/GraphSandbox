@@ -7,6 +7,8 @@ const GraphCanvas = (() => {
     const FIT_PADDING = 60;
     const MAX_FIT_ZOOM = 1;
     const GRID_SIZE = 24;
+    const WHEEL_ZOOM_SPEED = 0.002;
+    const LINE_HEIGHT = 33;
 
     let cy = null;
     let labelsVisible = true;
@@ -210,6 +212,22 @@ const GraphCanvas = (() => {
     }
 
 
+    // Cytoscape only wheel-zooms while drag-panning is on (Pan tool), so wheel zoom is handled
+    // here for every tool, at one consistent speed. Touch pinch-zoom is still Cytoscape's.
+    function onWheel(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const pixels = event.deltaMode === WheelEvent.DOM_DELTA_LINE ? event.deltaY * LINE_HEIGHT : event.deltaY;
+        const bounds = cy.container().getBoundingClientRect();
+
+        cy.zoom({
+            level: cy.zoom() * Math.exp(-pixels * WHEEL_ZOOM_SPEED),
+            renderedPosition: { x: event.clientX - bounds.left, y: event.clientY - bounds.top },
+        });
+    }
+
+
     // Setup
 
     function create(container) {
@@ -223,6 +241,9 @@ const GraphCanvas = (() => {
 
         cy.on("viewport", syncGrid);
         syncGrid();
+
+        // Listening on the parent in the capture phase runs before Cytoscape's own wheel handler.
+        container.parentElement.addEventListener("wheel", onWheel, { capture: true, passive: false });
 
         return cy;
     }

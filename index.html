@@ -54,21 +54,80 @@
 
             <div class="vr mx-1 mx-md-2 d-none d-sm-block"></div>
 
-            <button
-                class="btn btn-outline-secondary"
-                id="newGraph"
-                title="New graph">
-                <i class="bi bi-file-earmark-plus d-lg-none"></i>
-                <span class="d-none d-lg-inline">New graph</span>
-            </button>
+            <!-- File actions: buttons from tablets up, one menu on phones -->
+            <div class="d-none d-md-flex gap-2">
 
-            <button
-                class="btn btn-outline-secondary"
-                id="openSave"
-                title="Save graph">
-                <i class="bi bi-download"></i>
-                <span class="d-none d-lg-inline ms-1">Save</span>
-            </button>
+                <button
+                    class="btn btn-outline-secondary"
+                    data-action="newGraph"
+                    title="New graph">
+                    <i class="bi bi-file-earmark-plus d-lg-none"></i>
+                    <span class="d-none d-lg-inline">New graph</span>
+                </button>
+
+                <button
+                    class="btn btn-outline-secondary"
+                    data-action="openGraph"
+                    title="Open a graph file">
+                    <i class="bi bi-folder2-open"></i>
+                    <span class="d-none d-lg-inline ms-1">Open</span>
+                </button>
+
+                <button
+                    class="btn btn-outline-secondary"
+                    data-action="saveGraph"
+                    title="Save graph">
+                    <i class="bi bi-download"></i>
+                    <span class="d-none d-lg-inline ms-1">Save</span>
+                </button>
+
+            </div>
+
+            <div class="dropdown d-md-none">
+
+                <button
+                    class="btn btn-outline-secondary dropdown-toggle"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    title="File">
+                    <i class="bi bi-folder2"></i>
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <button
+                            class="dropdown-item"
+                            data-action="newGraph">
+                            <i class="bi bi-file-earmark-plus me-2"></i>
+                            New graph
+                        </button>
+                    </li>
+                    <li>
+                        <button
+                            class="dropdown-item"
+                            data-action="openGraph">
+                            <i class="bi bi-folder2-open me-2"></i>
+                            Open…
+                        </button>
+                    </li>
+                    <li>
+                        <button
+                            class="dropdown-item"
+                            data-action="saveGraph">
+                            <i class="bi bi-download me-2"></i>
+                            Save…
+                        </button>
+                    </li>
+                </ul>
+
+            </div>
+
+            <input
+                class="d-none"
+                type="file"
+                id="openGraphFile"
+                accept=".json,.graphml,.xml,.gml,.csv,.txt,.edgelist">
 
             <button
                 class="btn btn-outline-secondary"
@@ -744,12 +803,12 @@
     </div>
 
 
-    <!-- New Graph Modal -->
+    <!-- Confirm Modal: text is filled in by js/confirm-dialog.js -->
     <div
         class="modal fade"
-        id="newGraphModal"
+        id="confirmModal"
         tabindex="-1"
-        aria-labelledby="newGraphModalLabel"
+        aria-labelledby="confirmTitle"
         aria-hidden="true">
 
         <div class="modal-dialog modal-dialog-centered">
@@ -758,8 +817,9 @@
 
                 <div class="modal-header">
 
-                    <h5 class="modal-title" id="newGraphModalLabel">
-                        Start a new graph?
+                    <h5
+                        class="modal-title"
+                        id="confirmTitle">
                     </h5>
 
                     <button
@@ -772,9 +832,9 @@
                 </div>
 
                 <div class="modal-body">
-                    <p class="mb-0">
-                        The current graph (<span id="newGraphCounts"></span>) will be deleted.
-                        You can still bring it back with Undo.
+                    <p
+                        class="mb-0"
+                        id="confirmMessage">
                     </p>
                 </div>
 
@@ -790,8 +850,7 @@
                     <button
                         type="button"
                         class="btn btn-danger"
-                        id="confirmNewGraph">
-                        Delete graph
+                        id="confirmAccept">
                     </button>
 
                 </div>
@@ -931,6 +990,13 @@
     </div>
 
 
+    <!-- Notifications -->
+    <div
+        class="toast-container position-fixed top-0 start-50 translate-middle-x p-3"
+        id="notifications">
+    </div>
+
+
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/cytoscape.min.js"></script>
     <script src="js/pyodide/pyodide.js"></script>
@@ -948,7 +1014,10 @@
     <script src="js/analysis/result-views.js"></script>
     <script src="js/analysis/analysis-panel.js"></script>
     <script src="js/graph/graph-data.js"></script>
+    <script src="js/notify.js"></script>
+    <script src="js/confirm-dialog.js"></script>
     <script src="js/save-dialog.js"></script>
+    <script src="js/open-graph.js"></script>
     <script src="js/main.js"></script>
 
 </body>
