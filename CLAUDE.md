@@ -30,3 +30,7 @@ A browser sandbox for creating and analyzing simple graphs.
 - Plain JavaScript (CommonJS project), no frameworks.
 - Use Bootstrap components and utility classes for layout and styling. Keep markup uncluttered.
 - Ask before adding custom CSS. Any approved CSS goes in `css/style.css`, grouped by component.
+
+## Prompts
+
+- After finishing a job make sure to give the user any instructions needed to test and run the code/project themselves.
