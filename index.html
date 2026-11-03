@@ -1,19 +1,341 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GraphPlayground</title>
+
+    <title>GraphSandbox</title>
+
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
 
-    
+<body class="vh-100 d-flex flex-column">
 
-    <script src="js/cytoscape.min.js"></script>
+    <!-- Navbar -->
+    <nav class="navbar border-bottom flex-shrink-0">
+        <div class="container-fluid">
+
+            <a class="navbar-brand fw-bold" href="#">
+                GraphSandbox
+            </a>
+
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-secondary">
+                    New
+                </button>
+
+                <button class="btn btn-outline-secondary">
+                    Save
+                </button>
+
+                <button
+                    class="btn btn-outline-secondary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#settingsModal">
+                    Settings
+                </button>
+            </div>
+
+        </div>
+    </nav>
+
+
+    <!-- Main Application -->
+    <main class="container-fluid flex-grow-1 overflow-hidden">
+
+        <div class="row h-100">
+
+            <!-- Sidebar -->
+            <aside class="col-auto border-end p-3">
+
+                <!-- Graph Tools -->
+                <section class="mb-4">
+
+                    <h6 class="text-uppercase text-body-secondary small">
+                        Graph
+                    </h6>
+
+                    <div class="d-grid gap-1">
+
+                        <button class="btn btn-primary text-start">
+                            ↖ &nbsp; Select
+                        </button>
+
+                        <button class="btn btn-outline-secondary text-start">
+                            ● &nbsp; Vertex
+                        </button>
+
+                        <button class="btn btn-outline-secondary text-start">
+                            — &nbsp; Edge
+                        </button>
+
+                        <button class="btn btn-outline-secondary text-start">
+                            × &nbsp; Delete
+                        </button>
+
+                    </div>
+
+                </section>
+
+
+                <!-- Analysis -->
+                <section>
+
+                    <h6 class="text-uppercase text-body-secondary small">
+                        Analysis
+                    </h6>
+
+                    <div class="d-grid gap-1">
+
+                        <button class="btn btn-outline-secondary text-start">
+                            Properties
+                        </button>
+
+                        <button class="btn btn-outline-secondary text-start">
+                            Isomorphism
+                        </button>
+
+                        <button class="btn btn-outline-secondary text-start">
+                            Traversal
+                        </button>
+
+                        <button class="btn btn-outline-secondary text-start">
+                            Coloring
+                        </button>
+
+                        <button class="btn btn-outline-secondary text-start">
+                            Paths
+                        </button>
+
+                    </div>
+
+                </section>
+
+            </aside>
+
+
+            <!-- Workspace -->
+            <section class="col d-flex flex-column p-0">
+
+                <!-- Toolbar -->
+                <div class="border-bottom p-2 d-flex justify-content-between align-items-center">
+
+                    <span class="text-body-secondary small">
+                        Graph
+                    </span>
+
+                    <div class="d-flex gap-2">
+
+                        <button class="btn btn-sm btn-outline-secondary">
+                            Undo
+                        </button>
+
+                        <button class="btn btn-sm btn-outline-secondary">
+                            Redo
+                        </button>
+
+                        <button class="btn btn-sm btn-outline-secondary">
+                            Fit
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Graph Canvas -->
+                <div class="flex-grow-1 position-relative">
+
+                    <div class="position-absolute top-50 start-50 translate-middle text-center">
+
+                        <div class="display-1 text-body-secondary">
+                            ○
+                        </div>
+
+                        <h5>
+                            Graph Canvas
+                        </h5>
+
+                        <p class="text-body-secondary mb-0">
+                            Create vertices and edges to begin
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Analysis Panel -->
+                <div class="border-top bg-body-tertiary p-3">
+
+                    <h6>
+                        Graph Properties
+                    </h6>
+
+                    <div class="d-flex gap-5">
+
+                        <div>
+                            <small class="text-body-secondary d-block">
+                                Vertices
+                            </small>
+                            <strong>0</strong>
+                        </div>
+
+                        <div>
+                            <small class="text-body-secondary d-block">
+                                Edges
+                            </small>
+                            <strong>0</strong>
+                        </div>
+
+                        <div>
+                            <small class="text-body-secondary d-block">
+                                Components
+                            </small>
+                            <strong>0</strong>
+                        </div>
+
+                        <div>
+                            <small class="text-body-secondary d-block">
+                                Degree Sequence
+                            </small>
+                            <strong>—</strong>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+
+    <!-- Status Bar -->
+    <footer class="border-top px-3 py-1 d-flex gap-4 text-body-secondary small">
+
+        <span>
+            Vertices: 0
+        </span>
+
+        <span>
+            Edges: 0
+        </span>
+
+        <span class="ms-auto">
+            Ready
+        </span>
+
+    </footer>
+
+
+    <!-- Settings Modal -->
+    <div
+        class="modal fade"
+        id="settingsModal"
+        tabindex="-1"
+        aria-labelledby="settingsModalLabel"
+        aria-hidden="true">
+
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title" id="settingsModalLabel">
+                        Settings
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <h6>Appearance</h6>
+
+                    <div class="form-check form-switch mb-3">
+
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="darkMode">
+
+                        <label
+                            class="form-check-label"
+                            for="darkMode">
+                            Dark mode
+                        </label>
+
+                    </div>
+
+
+                    <h6>Graph</h6>
+
+                    <div class="form-check">
+
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="showLabels"
+                            checked>
+
+                        <label
+                            class="form-check-label"
+                            for="showLabels">
+                            Show vertex labels
+                        </label>
+
+                    </div>
+
+                    <div class="form-check">
+
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="showGrid">
+
+                        <label
+                            class="form-check-label"
+                            for="showGrid">
+                            Show grid
+                        </label>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                        Close
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/main.js"></script>
-    
+
 </body>
+
 </html>
