@@ -244,7 +244,9 @@
             <!-- Workspace Header and Inspector -->
             <div class="position-absolute top-0 start-0 m-3 m-md-4 d-flex flex-column align-items-start gap-3 pe-none">
 
-                <div class="d-flex align-items-center gap-3">
+                <div
+                    class="d-flex align-items-center gap-3"
+                    id="workspaceHeader">
                     <span class="fs-5 fw-semibold d-none d-sm-inline">Graph workspace</span>
                     <div class="vr d-none d-sm-block"></div>
                     <span
@@ -509,7 +511,7 @@
     </main>
 
 
-    <!-- Settings Modal -->
+    <!-- Settings Modal: edits are kept as a draft until Save (js/settings-dialog.js) -->
     <div
         class="modal fade"
         id="settingsModal"
@@ -557,7 +559,11 @@
                     </div>
 
 
-                    <h6>Default names</h6>
+                    <h6 class="mb-1">Names</h6>
+
+                    <p class="form-text mt-0 mb-3">
+                        Changing a style renames the existing nodes or edges when you save.
+                    </p>
 
                     <!-- Node Names -->
                     <label class="form-label small text-body-secondary mb-1">
@@ -578,7 +584,7 @@
                             <label
                                 class="btn btn-outline-secondary"
                                 for="nodeNamesNumbers">
-                                Numbers
+                                1, 2
                             </label>
 
                             <input
@@ -591,7 +597,20 @@
                             <label
                                 class="btn btn-outline-secondary"
                                 for="nodeNamesLetters">
-                                Letters
+                                a, b
+                            </label>
+
+                            <input
+                                class="btn-check"
+                                type="radio"
+                                name="nodeNames"
+                                id="nodeNamesCapitals"
+                                value="capitals"
+                                data-setting="nodeNames">
+                            <label
+                                class="btn btn-outline-secondary"
+                                for="nodeNamesCapitals">
+                                A, B
                             </label>
 
                             <input
@@ -619,20 +638,9 @@
 
                     </div>
 
-                    <div class="d-flex justify-content-between align-items-center gap-2 mt-1 mb-3">
-
-                        <span
-                            class="form-text mt-0"
-                            id="nodeNamesPreview">
-                        </span>
-
-                        <button
-                            type="button"
-                            class="btn btn-sm btn-link text-accent text-decoration-none p-0"
-                            id="renameNodes">
-                            Rename existing nodes
-                        </button>
-
+                    <div
+                        class="form-text mb-3"
+                        id="nodeNamesPreview">
                     </div>
 
 
@@ -668,7 +676,7 @@
                             <label
                                 class="btn btn-outline-secondary"
                                 for="edgeNamesNumbers">
-                                Numbers
+                                1, 2
                             </label>
 
                             <input
@@ -681,7 +689,20 @@
                             <label
                                 class="btn btn-outline-secondary"
                                 for="edgeNamesLetters">
-                                Letters
+                                a, b
+                            </label>
+
+                            <input
+                                class="btn-check"
+                                type="radio"
+                                name="edgeNames"
+                                id="edgeNamesCapitals"
+                                value="capitals"
+                                data-setting="edgeNames">
+                            <label
+                                class="btn btn-outline-secondary"
+                                for="edgeNamesCapitals">
+                                A, B
                             </label>
 
                             <input
@@ -709,20 +730,9 @@
 
                     </div>
 
-                    <div class="d-flex justify-content-between align-items-center gap-2 mt-1 mb-4">
-
-                        <span
-                            class="form-text mt-0"
-                            id="edgeNamesPreview">
-                        </span>
-
-                        <button
-                            type="button"
-                            class="btn btn-sm btn-link text-accent text-decoration-none p-0"
-                            id="renameEdges">
-                            Rename existing edges
-                        </button>
-
+                    <div
+                        class="form-text mb-4"
+                        id="edgeNamesPreview">
                     </div>
 
 
@@ -740,6 +750,22 @@
                             class="form-check-label"
                             for="showLabelsSetting">
                             Show node and edge labels
+                        </label>
+
+                    </div>
+
+                    <div class="form-check form-switch">
+
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="showCountsSetting"
+                            data-setting="showCounts">
+
+                        <label
+                            class="form-check-label"
+                            for="showCountsSetting">
+                            Show node and edge counts on the canvas
                         </label>
 
                     </div>
@@ -780,18 +806,18 @@
 
                 <div class="modal-footer">
 
-                    <span
-                        class="small text-accent me-auto fade"
-                        id="settingsSaved">
-                        <i class="bi bi-check2"></i>
-                        Saved
-                    </span>
+                    <button
+                        type="button"
+                        class="btn btn-outline-secondary"
+                        data-bs-dismiss="modal">
+                        Cancel
+                    </button>
 
                     <button
                         type="button"
-                        class="btn btn-secondary"
-                        data-bs-dismiss="modal">
-                        Close
+                        class="btn btn-accent"
+                        id="saveSettings">
+                        Save
                     </button>
 
                 </div>
@@ -1016,6 +1042,7 @@
     <script src="js/graph/graph-data.js"></script>
     <script src="js/notify.js"></script>
     <script src="js/confirm-dialog.js"></script>
+    <script src="js/settings-dialog.js"></script>
     <script src="js/save-dialog.js"></script>
     <script src="js/open-graph.js"></script>
     <script src="js/main.js"></script>

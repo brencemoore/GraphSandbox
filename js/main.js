@@ -8,46 +8,9 @@ const PYTHON_STATUS = {
     needsServer: { color: "bg-danger", text: "Run npm start to enable Python" },
 };
 
-const FEEDBACK_DURATION = 1800;
-const feedbackTimers = new Map();
-
 
 function bindButton(id, action) {
     document.getElementById(id).addEventListener("click", action);
-}
-
-
-// Feedback
-
-// Runs `undo` after a short delay, restarting the delay if the same element gets feedback again.
-function scheduleFeedbackReset(element, undo) {
-    clearTimeout(feedbackTimers.get(element));
-    feedbackTimers.set(element, setTimeout(undo, FEEDBACK_DURATION));
-}
-
-
-// Briefly shows a confirmation in place of a button's label.
-function flashButtonText(button, text) {
-    button.dataset.label ??= button.textContent.trim();
-    button.textContent = text;
-    scheduleFeedbackReset(button, () => { button.textContent = button.dataset.label; });
-}
-
-
-function showSettingsSaved() {
-    const indicator = document.getElementById("settingsSaved");
-    indicator.classList.add("show");
-    scheduleFeedbackReset(indicator, () => indicator.classList.remove("show"));
-}
-
-
-function renameWithFeedback(buttonId, rename, singular) {
-    const count = rename();
-    const text = count === 0
-        ? `No ${singular}s to rename`
-        : `✓ Renamed ${count} ${singular}${count === 1 ? "" : "s"}`;
-
-    flashButtonText(document.getElementById(buttonId), text);
 }
 
 
@@ -121,8 +84,6 @@ function bindControls(cy) {
     });
 
     bindFileActions(cy);
-    bindButton("renameNodes", () => renameWithFeedback("renameNodes", GraphTools.renameNodes, "node"));
-    bindButton("renameEdges", () => renameWithFeedback("renameEdges", GraphTools.renameEdges, "edge"));
     bindButton("deleteSelected", GraphTools.deleteSelected);
     bindButton("undo", GraphTools.undo);
     bindButton("redo", GraphTools.redo);
@@ -144,33 +105,19 @@ function setDarkMode(enabled) {
 }
 
 
-// The prefix box only applies to the "Prefix" style; the preview shows what new names will look like.
-function updateNamingControls(kind) {
-    const style = AppSettings.get(`${kind}Names`);
-    const prefix = AppSettings.get(`${kind}Prefix`);
-    const plural = kind === "node" ? "nodes" : "edges";
-
-    document.getElementById(`${kind}PrefixSetting`).disabled = style !== "custom";
-    document.getElementById(`${kind}NamesPreview`).textContent = style === "none"
-        ? `New ${plural} have no name.`
-        : `New ${plural}: ${GraphNaming.examples(style, prefix).join(", ")}, …`;
-}
-
-
+// Naming settings need no handler here: tools read them when naming, and the
+// settings dialog renames existing nodes and edges when they change.
 const SETTING_HANDLERS = {
     autoUpdate: value => AnalysisPanel.setAutoUpdate(value),
-    nodeNames: () => updateNamingControls("node"),
-    nodePrefix: () => updateNamingControls("node"),
-    edgeNames: () => updateNamingControls("edge"),
-    edgePrefix: () => updateNamingControls("edge"),
     showLabels: value => GraphCanvas.setLabelsVisible(value),
+    showCounts: value => document.getElementById("workspaceHeader").classList.toggle("d-none", !value),
     showGrid: value => GraphCanvas.setGridVisible(value),
     darkMode: setDarkMode,
 };
 
 
 function applySetting(key, value) {
-    SETTING_HANDLERS[key](value);
+    SETTING_HANDLERS[key]?.(value);
 }
 
 
@@ -207,13 +154,13 @@ function initApp() {
     GraphSummary.init(cy);
     AnalysisPanel.init(cy);
     ConfirmDialog.init();
+    SettingsDialog.init(cy);
     SaveDialog.init(cy);
     OpenGraph.init(cy);
     Marquee.init(cy);
 
     bindControls(cy);
     AppSettings.onChange(applySetting);
-    AppSettings.onChange(showSettingsSaved);
     AppSettings.applyAll(applySetting);
 
     selectTool("select");

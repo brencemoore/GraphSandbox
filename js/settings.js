@@ -1,5 +1,5 @@
 // Settings
-// Holds the app settings, saves them in the browser, and keeps the settings modal in sync.
+// Holds the app settings and saves them in the browser. The settings dialog is js/settings-dialog.js.
 
 const AppSettings = (() => {
 
@@ -12,6 +12,7 @@ const AppSettings = (() => {
         edgeNames: "none",
         edgePrefix: "e",
         showLabels: true,
+        showCounts: true,
         showGrid: true,
         darkMode: false,
     };
@@ -52,10 +53,18 @@ const AppSettings = (() => {
     }
 
 
-    function set(key, value) {
-        values[key] = value;
+    function all() {
+        return { ...values };
+    }
+
+
+    // Applies every changed value, saves once, then tells the listeners about each change.
+    function update(changes) {
+        const changedKeys = Object.keys(changes).filter(key => key in DEFAULTS && changes[key] !== values[key]);
+
+        changedKeys.forEach(key => { values[key] = changes[key]; });
         save();
-        listeners.forEach(listener => listener(key, value));
+        changedKeys.forEach(key => listeners.forEach(listener => listener(key, values[key])));
     }
 
 
@@ -71,32 +80,11 @@ const AppSettings = (() => {
     }
 
 
-    // Modal
-    // Inputs name their setting with data-setting: radios use their value,
-    // checkboxes their checked state, text inputs their text.
-
-    function bindInput(input) {
-        const key = input.dataset.setting;
-
-        if (input.type === "radio") {
-            input.checked = input.value === values[key];
-            input.addEventListener("change", () => set(key, input.value));
-        } else if (input.type === "checkbox") {
-            input.checked = values[key];
-            input.addEventListener("change", () => set(key, input.checked));
-        } else {
-            input.value = values[key];
-            input.addEventListener("input", () => set(key, input.value.trim()));
-        }
-    }
-
-
     function init() {
         load();
-        document.querySelectorAll("[data-setting]").forEach(bindInput);
     }
 
 
-    return { init, get, onChange, applyAll };
+    return { init, get, all, update, onChange, applyAll };
 
 })();

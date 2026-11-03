@@ -11,11 +11,11 @@ const GraphTools = (() => {
             cursor: "default",
         },
         node: {
-            hint: "Click the canvas to add a node",
+            hint: "Click the canvas to add a node · drag to pan",
             cursor: "crosshair",
         },
         edge: {
-            hint: "Click two nodes to connect them",
+            hint: "Click or drag from one node to another to connect them",
             cursor: "pointer",
         },
         pan: {
@@ -29,6 +29,7 @@ const GraphTools = (() => {
     let edgeSource = null;
     let dragStartState = null;
     let edgeDrag = null;
+    let connectPress = null;
 
 
     // Editing
@@ -170,17 +171,23 @@ const GraphTools = (() => {
     }
 
 
-    // Only select mode selects; it drags a marquee, pan drags the view, other modes only drag nodes.
-    // Touch screens keep panning on in every tool: one finger cannot marquee, and Cytoscape
-    // only pinch-zooms while panning is on. (Mouse-wheel zoom for other tools is in canvas.js.)
+    // Only select mode selects, and dragging empty canvas there draws a marquee.
+    // Every other tool pans when dragging empty canvas (they only act on clicks).
+    // Touch screens pan in select mode too: one finger cannot marquee, and Cytoscape
+    // only pinch-zooms while panning is on. Mouse-wheel zoom is handled in canvas.js.
+    // Leaving select clears the selection; nodes cannot be moved with the pan or connect tools.
     function setTool(tool) {
         cancelEdge();
         activeTool = tool;
 
+        if (tool !== "select") {
+            cy.elements().unselect();
+        }
+
         cy.autounselectify(tool !== "select");
         cy.boxSelectionEnabled(tool === "select");
-        cy.userPanningEnabled(tool === "pan" || IS_TOUCH_SCREEN);
-        cy.autoungrabify(tool === "pan");
+        cy.userPanningEnabled(tool !== "select" || IS_TOUCH_SCREEN);
+        cy.autoungrabify(tool === "pan" || tool === "edge");
 
         setCursor(MODES[tool].cursor);
     }
@@ -255,11 +262,71 @@ const GraphTools = (() => {
     }
 
 
+    function drawEdgePreview(renderedPosition) {
+        const target = cy.nodes(".edge-target");
+        EdgePreview.draw(edgeSource, renderedPosition, target.nonempty() ? target[0] : null);
+    }
+
+
     function onPointerMove(event) {
         if (edgeSource) {
-            const target = cy.nodes(".edge-target");
-            EdgePreview.draw(edgeSource, event.renderedPosition, target.nonempty() ? target[0] : null);
+            drawEdgePreview(event.renderedPosition);
         }
+    }
+
+
+    // Connect Tool Dragging
+    // Pressing a node and dragging to another node connects them; releasing anywhere else cancels.
+    // A plain click is still handled by onTapNode (click one node, then the other).
+
+    function onNodePress(event) {
+        if (activeTool !== "edge") {
+            return;
+        }
+
+        // A drag that starts on a node draws an edge, so it must not pan the canvas.
+        connectPress = { node: event.target, panning: cy.userPanningEnabled(), dragging: false };
+        cy.userPanningEnabled(false);
+    }
+
+
+    function onConnectDrag(event) {
+        if (!connectPress) {
+            return;
+        }
+
+        if (!connectPress.dragging) {
+            connectPress.dragging = true;
+
+            if (!edgeSource) {
+                startEdge(connectPress.node);
+            }
+        }
+
+        drawEdgePreview(event.renderedPosition);
+    }
+
+
+    function onConnectRelease(event) {
+        if (!connectPress) {
+            return;
+        }
+
+        const { dragging, panning } = connectPress;
+        connectPress = null;
+        cy.userPanningEnabled(panning);
+
+        if (!dragging) {
+            return;
+        }
+
+        const target = event.target;
+
+        if (target !== cy && target.isNode()) {
+            addEdge(edgeSource, target);
+        }
+
+        cancelEdge();
     }
 
 
@@ -379,6 +446,9 @@ const GraphTools = (() => {
         cy.on("tapstart", "edge", onEdgePress);
         cy.on("tapdrag", onPointerDrag);
         cy.on("tapend", onPointerRelease);
+        cy.on("tapstart", "node", onNodePress);
+        cy.on("tapdrag", onConnectDrag);
+        cy.on("tapend", onConnectRelease);
 
         cy.container().addEventListener("mouseleave", onLeaveCanvas);
         document.addEventListener("keydown", onKeyDown);

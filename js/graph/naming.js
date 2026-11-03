@@ -1,6 +1,6 @@
 // Graph Naming
 // Default ids and names for new nodes and edges, and the text shown on edges.
-// Name styles: "numbers" (1, 2), "letters" (a, b), "custom" (prefix + number, e.g. v1, E2) or "none".
+// Name styles: "numbers" (1, 2), "letters" (a, b), "capitals" (A, B), "custom" (prefix + number, e.g. v1, E2) or "none".
 
 const GraphNaming = (() => {
 
@@ -21,6 +21,7 @@ const GraphNaming = (() => {
     const STYLES = {
         numbers: index => String(index),
         letters: letterName,
+        capitals: index => letterName(index).toUpperCase(),
         custom: (index, prefix) => `${prefix}${index}`,
     };
 

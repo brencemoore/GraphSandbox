@@ -1,5 +1,5 @@
 // Confirm Dialog
-// Asks the user to confirm an action that deletes something.
+// Asks the user to confirm an action, such as deleting or renaming the graph.
 
 const ConfirmDialog = (() => {
 
@@ -14,10 +14,14 @@ const ConfirmDialog = (() => {
 
 
     // Resolves to true when the user confirms, false when they cancel or close the dialog.
-    function ask({ title, message, confirmLabel }) {
+    // confirmVariant is the confirm button's style, e.g. "danger" or "accent".
+    function ask({ title, message, confirmLabel, confirmVariant = "danger" }) {
+        const acceptButton = document.getElementById("confirmAccept");
+
         document.getElementById("confirmTitle").textContent = title;
         document.getElementById("confirmMessage").textContent = message;
-        document.getElementById("confirmAccept").textContent = confirmLabel;
+        acceptButton.textContent = confirmLabel;
+        acceptButton.className = `btn btn-${confirmVariant}`;
 
         answer(false);
         modal.show();
