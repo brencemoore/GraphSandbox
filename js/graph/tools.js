@@ -77,6 +77,32 @@ const GraphTools = (() => {
     }
 
 
+    // Renames every node (in id order) or edge (in creation order) with the current default pattern, as one undo step.
+    function renameAll(elements, dataKey, style, prefix, fallback) {
+        if (elements.empty()) {
+            return;
+        }
+
+        GraphHistory.record();
+        cy.batch(() => {
+            elements.forEach((element, index) => {
+                element.data(dataKey, GraphNaming.nameAt(style, prefix, index + 1) || fallback(element));
+            });
+        });
+    }
+
+
+    function renameNodes() {
+        const nodes = cy.nodes().sort((a, b) => Number(a.id()) - Number(b.id()));
+        renameAll(nodes, "label", AppSettings.get("nodeNames"), AppSettings.get("nodePrefix"), node => node.id());
+    }
+
+
+    function renameEdges() {
+        renameAll(cy.edges(), "name", AppSettings.get("edgeNames"), AppSettings.get("edgePrefix"), () => "");
+    }
+
+
     function undo() {
         cancelEdge();
         GraphHistory.undo();
@@ -299,6 +325,6 @@ const GraphTools = (() => {
     }
 
 
-    return { init, setTool, hint, deleteSelected, clearGraph, undo, redo };
+    return { init, setTool, hint, deleteSelected, clearGraph, renameNodes, renameEdges, undo, redo };
 
 })();

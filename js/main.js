@@ -49,6 +49,8 @@ function bindControls(cy) {
     });
 
     bindButton("newGraph", GraphTools.clearGraph);
+    bindButton("renameNodes", GraphTools.renameNodes);
+    bindButton("renameEdges", GraphTools.renameEdges);
     bindButton("deleteSelected", GraphTools.deleteSelected);
     bindButton("undo", GraphTools.undo);
     bindButton("redo", GraphTools.redo);

@@ -53,6 +53,11 @@ const Inspector = (() => {
     function refresh() {
         refreshScheduled = false;
 
+        // Leave the fields alone while the user is typing in them.
+        if (card.contains(document.activeElement)) {
+            return;
+        }
+
         const target = selectedElement();
         target ? show(target) : hide();
     }
@@ -127,7 +132,7 @@ const Inspector = (() => {
         bindInput(nameInput, onNameInput);
         bindInput(valueInput, onValueInput);
 
-        cy.on("select unselect add remove", scheduleRefresh);
+        cy.on("select unselect add remove data", scheduleRefresh);
     }
 
 

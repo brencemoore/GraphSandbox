@@ -82,6 +82,6 @@ const GraphNaming = (() => {
     }
 
 
-    return { nextNodeId, nextNodeName, nextEdgeName, examples, edgeLabel };
+    return { nameAt, nextNodeId, nextNodeName, nextEdgeName, examples, edgeLabel };
 
 })();
