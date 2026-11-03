@@ -1,7 +1,7 @@
 {
   "name": "graphsandbox",
   "version": "1.0.0",
-  "description": "A sandbox for creating and analyzing graphs\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[Dsimple graphs",
+  "description": "A sandbox for creating and analyzing simple graphs",
   "homepage": "https://github.com/brencemoore/GraphSandbox#readme",
   "bugs": {
     "url": "https://github.com/brencemoore/GraphSandbox/issues"
@@ -16,7 +16,7 @@
   "main": "js/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "copy-dependencies": "bash ./copy-dependencies.sh",
+    "copy-dependencies": "node scripts/copy-dependencies.js",
     "update-dependencies": "npm update && npm run copy-dependencies",
     "postinstall": "npm run copy-dependencies"
   },
