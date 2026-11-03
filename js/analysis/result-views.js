@@ -11,8 +11,16 @@ const ResultViews = (() => {
     }
 
 
-    function heading(text) {
-        return createElement("h6", "fw-semibold mb-3", text);
+    // Results can carry a note, e.g. how edge values were used.
+    function heading(result) {
+        const wrapper = createElement("div", "mb-3");
+        wrapper.append(createElement("h6", "fw-semibold mb-1", result.title));
+
+        if (result.note) {
+            wrapper.append(createElement("div", "small text-body-secondary", result.note));
+        }
+
+        return wrapper;
     }
 
 
@@ -65,7 +73,7 @@ const ResultViews = (() => {
 
 
     function properties(result) {
-        return [statCards(result.highlights), heading(result.title), propertyList(result.rows)];
+        return [statCards(result.highlights), heading(result), propertyList(result.rows)];
     }
 
 
@@ -95,7 +103,7 @@ const ResultViews = (() => {
 
         result.rows.forEach(([label, score]) => list.append(scoreRow(label, score, maxScore)));
 
-        return [heading(result.title), list];
+        return [heading(result), list];
     }
 
 
@@ -132,7 +140,7 @@ const ResultViews = (() => {
         const wrapper = createElement("div", "table-responsive");
         wrapper.append(element);
 
-        return [heading(result.title), wrapper];
+        return [heading(result), wrapper];
     }
 
 

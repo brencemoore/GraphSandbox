@@ -13,6 +13,13 @@ const AnalysisPanel = (() => {
     let latestRun = 0;
 
 
+    // Blank edge values are sent as null so Python can treat them as weight 1.
+    function edgeValue(edge) {
+        const value = edge.data("value");
+        return value === "" ? null : Number(value);
+    }
+
+
     // Nodes are sent in numeric order so matrix rows follow node ids.
     function graphData() {
         const nodes = cy.nodes()
@@ -23,6 +30,7 @@ const AnalysisPanel = (() => {
             source: edge.source().id(),
             target: edge.target().id(),
             name: edge.data("name"),
+            value: edgeValue(edge),
         }));
 
         return { nodes, edges };

@@ -1,11 +1,18 @@
 """Graph analysis functions called from the browser through Pyodide.
 
-The browser sends {"nodes": [{"id", "label"}], "edges": [{"source", "target", "name"}]}.
+The browser sends {"nodes": [{"id", "label"}], "edges": [{"source", "target", "name", "value"}]}.
 Every analysis takes the NetworkX graph and returns one of these result kinds:
 
 - table:      {"kind", "title", "columns": [str], "rows": [[label, value, ...]]}
 - scores:     {"kind", "title", "rows": [[node label, score]]}
 - properties: {"kind", "title", "highlights": [[name, value]], "rows": [[name, value]]}
+
+Any result may also carry a "note" shown under its title.
+
+Edge values are stored as the "weight" attribute; a blank value is weight 1.
+Matrices, spectra, eigenvector centrality and PageRank treat weights as connection
+strengths. Shortest-path measures (distances, betweenness, closeness, harmonic,
+diameter, radius) treat them as lengths.
 """
 
 import json
@@ -16,6 +23,12 @@ import numpy as np
 
 DECIMALS = 4
 INFINITY = "∞"
+WEIGHT = "weight"
+
+STRENGTH_NOTE = "Edge values are used as connection strengths (blank = 1)."
+DISTANCE_NOTE = "Edge values are used as distances (blank = 1)."
+UNWEIGHTED_NOTE = "Counts edges; edge values are not used."
+PROPERTIES_NOTE = "Diameter, radius and algebraic connectivity use edge values (blank = 1)."
 
 
 # Labels
@@ -35,6 +48,27 @@ def vertex_labels(graph):
 def edge_label(graph, edge):
     source, target = edge
     return graph.edges[edge]["name"] or f"{vertex_label(graph, source)}–{vertex_label(graph, target)}"
+
+
+# Weights
+
+def is_weighted(graph):
+    return graph.graph["weighted"]
+
+
+def with_note(result, graph, note):
+    if is_weighted(graph):
+        result["note"] = note
+    return result
+
+
+def has_negative_weights(graph):
+    return any(weight < 0 for _, _, weight in graph.edges(data=WEIGHT))
+
+
+def require_nonnegative_weights(graph):
+    if has_negative_weights(graph):
+        raise ValueError("Distance-based results need edge values of 0 or more.")
 
 
 # Formatting
@@ -83,97 +117,115 @@ def scores_result(title, graph, scores):
 # Matrices
 
 def adjacency(graph):
-    return nx.to_numpy_array(graph, nodelist=vertices(graph))
+    return nx.to_numpy_array(graph, nodelist=vertices(graph), weight=WEIGHT)
 
 
 def laplacian(graph):
-    return nx.laplacian_matrix(graph, nodelist=vertices(graph)).toarray()
+    return nx.laplacian_matrix(graph, nodelist=vertices(graph), weight=WEIGHT).toarray()
 
 
 def normalized_laplacian(graph):
-    return nx.normalized_laplacian_matrix(graph, nodelist=vertices(graph)).toarray()
+    return nx.normalized_laplacian_matrix(graph, nodelist=vertices(graph), weight=WEIGHT).toarray()
 
 
 def incidence(graph, oriented):
     edges = list(graph.edges)
-    matrix = nx.incidence_matrix(graph, nodelist=vertices(graph), edgelist=edges, oriented=oriented).toarray()
+    matrix = nx.incidence_matrix(
+        graph, nodelist=vertices(graph), edgelist=edges, oriented=oriented, weight=WEIGHT,
+    ).toarray()
     return matrix, [edge_label(graph, edge) for edge in edges]
 
 
-def square_matrix_result(title, graph, matrix):
+def square_matrix_result(title, graph, matrix, note):
     labels = vertex_labels(graph)
-    return matrix_result(title, matrix, labels, labels)
+    return with_note(matrix_result(title, matrix, labels, labels), graph, note)
 
 
 def adjacency_matrix(graph):
-    return square_matrix_result("Adjacency Matrix", graph, adjacency(graph))
+    return square_matrix_result("Adjacency Matrix", graph, adjacency(graph), STRENGTH_NOTE)
 
 
 def degree_matrix(graph):
-    degrees = [degree for _, degree in graph.degree(vertices(graph))]
-    return square_matrix_result("Degree Matrix", graph, np.diag(degrees))
+    degrees = [degree for _, degree in graph.degree(vertices(graph), weight=WEIGHT)]
+    return square_matrix_result("Degree Matrix", graph, np.diag(degrees), STRENGTH_NOTE)
 
 
 def laplacian_matrix(graph):
-    return square_matrix_result("Laplacian Matrix", graph, laplacian(graph))
+    return square_matrix_result("Laplacian Matrix", graph, laplacian(graph), STRENGTH_NOTE)
 
 
 def normalized_laplacian_matrix(graph):
-    return square_matrix_result("Normalized Laplacian Matrix", graph, normalized_laplacian(graph))
+    return square_matrix_result("Normalized Laplacian Matrix", graph, normalized_laplacian(graph), STRENGTH_NOTE)
 
 
 def distance_matrix(graph):
-    return square_matrix_result("Distance Matrix", graph, nx.floyd_warshall_numpy(graph, nodelist=vertices(graph)))
+    require_nonnegative_weights(graph)
+    matrix = nx.floyd_warshall_numpy(graph, nodelist=vertices(graph), weight=WEIGHT)
+    return square_matrix_result("Distance Matrix", graph, matrix, DISTANCE_NOTE)
 
 
 def incidence_matrix(graph):
     matrix, edge_labels = incidence(graph, oriented=False)
-    return matrix_result("Incidence Matrix", matrix, vertex_labels(graph), edge_labels)
+    result = matrix_result("Incidence Matrix", matrix, vertex_labels(graph), edge_labels)
+    return with_note(result, graph, STRENGTH_NOTE)
 
 
 def oriented_incidence_matrix(graph):
     matrix, edge_labels = incidence(graph, oriented=True)
-    return matrix_result("Oriented Incidence Matrix", matrix, vertex_labels(graph), edge_labels)
+    result = matrix_result("Oriented Incidence Matrix", matrix, vertex_labels(graph), edge_labels)
+    return with_note(result, graph, STRENGTH_NOTE)
 
 
 # Spectra
 
 def adjacency_spectrum(graph):
-    return spectrum_result("Adjacency Eigenvalues", adjacency(graph), descending=True)
+    result = spectrum_result("Adjacency Eigenvalues", adjacency(graph), descending=True)
+    return with_note(result, graph, STRENGTH_NOTE)
 
 
 def laplacian_spectrum(graph):
-    return spectrum_result("Laplacian Eigenvalues", laplacian(graph), descending=False)
+    result = spectrum_result("Laplacian Eigenvalues", laplacian(graph), descending=False)
+    return with_note(result, graph, STRENGTH_NOTE)
 
 
 def normalized_laplacian_spectrum(graph):
-    return spectrum_result("Normalized Laplacian Eigenvalues", normalized_laplacian(graph), descending=False)
+    result = spectrum_result("Normalized Laplacian Eigenvalues", normalized_laplacian(graph), descending=False)
+    return with_note(result, graph, STRENGTH_NOTE)
 
 
 # Centrality
 
 def degree_centrality(graph):
-    return scores_result("Degree Centrality", graph, nx.degree_centrality(graph))
+    result = scores_result("Degree Centrality", graph, nx.degree_centrality(graph))
+    return with_note(result, graph, UNWEIGHTED_NOTE)
 
 
 def betweenness_centrality(graph):
-    return scores_result("Betweenness Centrality", graph, nx.betweenness_centrality(graph))
+    require_nonnegative_weights(graph)
+    result = scores_result("Betweenness Centrality", graph, nx.betweenness_centrality(graph, weight=WEIGHT))
+    return with_note(result, graph, DISTANCE_NOTE)
 
 
 def closeness_centrality(graph):
-    return scores_result("Closeness Centrality", graph, nx.closeness_centrality(graph))
+    require_nonnegative_weights(graph)
+    result = scores_result("Closeness Centrality", graph, nx.closeness_centrality(graph, distance=WEIGHT))
+    return with_note(result, graph, DISTANCE_NOTE)
 
 
 def harmonic_centrality(graph):
-    return scores_result("Harmonic Centrality", graph, nx.harmonic_centrality(graph))
+    require_nonnegative_weights(graph)
+    result = scores_result("Harmonic Centrality", graph, nx.harmonic_centrality(graph, distance=WEIGHT))
+    return with_note(result, graph, DISTANCE_NOTE)
 
 
 def eigenvector_centrality(graph):
-    return scores_result("Eigenvector Centrality", graph, nx.eigenvector_centrality(graph, max_iter=1000))
+    scores = nx.eigenvector_centrality(graph, max_iter=1000, weight=WEIGHT)
+    return with_note(scores_result("Eigenvector Centrality", graph, scores), graph, STRENGTH_NOTE)
 
 
 def pagerank(graph):
-    return scores_result("PageRank", graph, nx.pagerank(graph))
+    result = scores_result("PageRank", graph, nx.pagerank(graph, weight=WEIGHT))
+    return with_note(result, graph, STRENGTH_NOTE)
 
 
 # Structure
@@ -186,6 +238,17 @@ def algebraic_connectivity(graph):
 
 def degree_sequence(graph):
     return ", ".join(str(degree) for degree in sorted((degree for _, degree in graph.degree), reverse=True))
+
+
+def path_extent(graph, measure, connected):
+    """Diameter or radius: infinite when disconnected, undefined with negative distances."""
+    if not connected:
+        return INFINITY
+
+    if has_negative_weights(graph):
+        return "Needs values ≥ 0"
+
+    return measure(graph, weight=WEIGHT)
 
 
 def graph_properties(graph):
@@ -201,8 +264,14 @@ def graph_properties(graph):
     properties = [
         ("Connected", connected),
         ("Degree sequence", degree_sequence(graph)),
-        ("Diameter", nx.diameter(graph) if connected else INFINITY),
-        ("Radius", nx.radius(graph) if connected else INFINITY),
+    ]
+
+    if is_weighted(graph):
+        properties.append(("Total edge value", graph.size(weight=WEIGHT)))
+
+    properties += [
+        ("Diameter", path_extent(graph, nx.diameter, connected)),
+        ("Radius", path_extent(graph, nx.radius, connected)),
         ("Girth", nx.girth(graph)),
         ("Tree", nx.is_tree(graph)),
         ("Bipartite", nx.is_bipartite(graph)),
@@ -212,12 +281,13 @@ def graph_properties(graph):
         ("Algebraic connectivity", algebraic_connectivity(graph)),
     ]
 
-    return {
+    result = {
         "kind": "properties",
         "title": "Properties",
         "highlights": [[name, format_value(value)] for name, value in highlights],
         "rows": [[name, format_value(value)] for name, value in properties],
     }
+    return with_note(result, graph, PROPERTIES_NOTE)
 
 
 # Entry Point
@@ -245,12 +315,14 @@ ANALYSES = {
 
 def build_graph(graph_data):
     graph = nx.Graph()
+    graph.graph["weighted"] = any(edge["value"] is not None for edge in graph_data["edges"])
 
     for node in graph_data["nodes"]:
         graph.add_node(node["id"], label=node["label"])
 
     for edge in graph_data["edges"]:
-        graph.add_edge(edge["source"], edge["target"], name=edge["name"])
+        weight = 1 if edge["value"] is None else edge["value"]
+        graph.add_edge(edge["source"], edge["target"], name=edge["name"], weight=weight)
 
     return graph
 
