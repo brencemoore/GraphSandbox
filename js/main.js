@@ -141,6 +141,20 @@ function loadPython() {
 }
 
 
+// Leaving the Page
+
+// The graph only lives in this tab, so closing, reloading or going back would lose it.
+// Browsers show their own "Leave site?" wording; a custom message is not allowed.
+function warnBeforeLeaving(cy) {
+    window.addEventListener("beforeunload", event => {
+        if (cy.elements().nonempty()) {
+            event.preventDefault();
+            event.returnValue = "";
+        }
+    });
+}
+
+
 // Setup
 
 function initApp() {
@@ -167,6 +181,7 @@ function initApp() {
     updateHistoryButtons();
     updateDeleteButton(cy);
     updateZoomLevel();
+    warnBeforeLeaving(cy);
     loadPython();
 }
 
