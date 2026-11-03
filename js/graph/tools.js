@@ -3,8 +3,6 @@
 
 const GraphTools = (() => {
 
-    const IS_TOUCH_SCREEN = matchMedia("(pointer: coarse)").matches;
-
     const MODES = {
         select: {
             hint: "Click, drag, or marquee to select · Shift adds",
@@ -173,8 +171,7 @@ const GraphTools = (() => {
 
     // Only select mode selects, and dragging empty canvas there draws a marquee.
     // Every other tool pans when dragging empty canvas (they only act on clicks).
-    // Touch screens pan in select mode too: one finger cannot marquee, and Cytoscape
-    // only pinch-zooms while panning is on. Mouse-wheel zoom is handled in canvas.js.
+    // Select never pans; mouse-wheel zoom works in every tool (canvas.js).
     // Leaving select clears the selection; nodes cannot be moved with the pan or connect tools.
     function setTool(tool) {
         cancelEdge();
@@ -186,7 +183,7 @@ const GraphTools = (() => {
 
         cy.autounselectify(tool !== "select");
         cy.boxSelectionEnabled(tool === "select");
-        cy.userPanningEnabled(tool !== "select" || IS_TOUCH_SCREEN);
+        cy.userPanningEnabled(tool !== "select");
         cy.autoungrabify(tool === "pan" || tool === "edge");
 
         setCursor(MODES[tool].cursor);

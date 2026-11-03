@@ -1,6 +1,6 @@
 // Marquee
-// Makes box selection also select every edge the box crosses,
-// not only edges whose whole line lies inside it.
+// Makes box selection select everything the box touches: every node whose shape overlaps it
+// and every edge whose line crosses it, not only elements lying wholly inside it.
 
 const Marquee = (() => {
 
@@ -17,6 +17,11 @@ const Marquee = (() => {
             y1: Math.min(a.y, b.y),
             y2: Math.max(a.y, b.y),
         };
+    }
+
+
+    function boxesOverlap(a, b) {
+        return a.x1 <= b.x2 && b.x1 <= a.x2 && a.y1 <= b.y2 && b.y1 <= a.y2;
     }
 
 
@@ -62,7 +67,11 @@ const Marquee = (() => {
 
     // Selection
 
-    function selectCrossedEdges(box) {
+    function selectTouched(box) {
+        cy.nodes()
+            .filter(node => boxesOverlap(node.boundingBox({ includeLabels: false }), box))
+            .select();
+
         cy.edges()
             .filter(edge => segmentTouchesBox(edge.source().position(), edge.target().position(), box))
             .select();
@@ -81,7 +90,7 @@ const Marquee = (() => {
         }
 
         const box = boxBetween(origin, event.position);
-        setTimeout(() => selectCrossedEdges(box));
+        setTimeout(() => selectTouched(box));
     }
 
 
