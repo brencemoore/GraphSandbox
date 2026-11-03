@@ -330,10 +330,10 @@
                         <button
                             class="nav-link"
                             data-bs-toggle="tab"
-                            data-bs-target="#spectrumTab"
+                            data-bs-target="#spectralTab"
                             type="button"
                             role="tab">
-                            Spectrum
+                            Spectral
                         </button>
                     </li>
 
@@ -394,16 +394,16 @@
                 </div>
 
 
-                <!-- Spectrum -->
+                <!-- Spectral -->
                 <div
                     class="tab-pane fade"
-                    id="spectrumTab"
+                    id="spectralTab"
                     role="tabpanel">
 
                     <select class="form-select mb-4">
-                        <option value="adjacency_spectrum">Adjacency eigenvalues</option>
-                        <option value="laplacian_spectrum">Laplacian eigenvalues</option>
-                        <option value="normalized_laplacian_spectrum">Normalized Laplacian eigenvalues</option>
+                        <option value="adjacency_spectrum">Adjacency matrix</option>
+                        <option value="laplacian_spectrum">Laplacian matrix</option>
+                        <option value="normalized_laplacian_spectrum">Normalized Laplacian matrix</option>
                     </select>
 
                     <div data-result></div>
@@ -465,49 +465,150 @@
                     </div>
 
 
-                    <h6>Default edge names</h6>
+                    <h6>Default names</h6>
 
-                    <div class="btn-group w-100 mb-4" role="group">
+                    <!-- Node Names -->
+                    <label class="form-label small text-body-secondary mb-1">
+                        Nodes
+                    </label>
+
+                    <div class="d-flex gap-2">
+
+                        <div class="btn-group flex-grow-1" role="group">
+
+                            <input
+                                class="btn-check"
+                                type="radio"
+                                name="nodeNames"
+                                id="nodeNamesNumbers"
+                                value="numbers"
+                                data-setting="nodeNames">
+                            <label
+                                class="btn btn-outline-secondary"
+                                for="nodeNamesNumbers">
+                                Numbers
+                            </label>
+
+                            <input
+                                class="btn-check"
+                                type="radio"
+                                name="nodeNames"
+                                id="nodeNamesLetters"
+                                value="letters"
+                                data-setting="nodeNames">
+                            <label
+                                class="btn btn-outline-secondary"
+                                for="nodeNamesLetters">
+                                Letters
+                            </label>
+
+                            <input
+                                class="btn-check"
+                                type="radio"
+                                name="nodeNames"
+                                id="nodeNamesCustom"
+                                value="custom"
+                                data-setting="nodeNames">
+                            <label
+                                class="btn btn-outline-secondary"
+                                for="nodeNamesCustom">
+                                Prefix
+                            </label>
+
+                        </div>
 
                         <input
-                            class="btn-check"
-                            type="radio"
-                            name="edgeNames"
-                            id="edgeNamesNone"
-                            value="none"
-                            data-setting="edgeNames">
-                        <label
-                            class="btn btn-outline-secondary"
-                            for="edgeNamesNone">
-                            None
-                        </label>
+                            class="form-control w-25"
+                            type="text"
+                            id="nodePrefixSetting"
+                            placeholder="v"
+                            aria-label="Node name prefix"
+                            data-setting="nodePrefix">
+
+                    </div>
+
+                    <div
+                        class="form-text mb-3"
+                        id="nodeNamesPreview">
+                    </div>
+
+
+                    <!-- Edge Names -->
+                    <label class="form-label small text-body-secondary mb-1">
+                        Edges
+                    </label>
+
+                    <div class="d-flex gap-2">
+
+                        <div class="btn-group flex-grow-1" role="group">
+
+                            <input
+                                class="btn-check"
+                                type="radio"
+                                name="edgeNames"
+                                id="edgeNamesNone"
+                                value="none"
+                                data-setting="edgeNames">
+                            <label
+                                class="btn btn-outline-secondary"
+                                for="edgeNamesNone">
+                                None
+                            </label>
+
+                            <input
+                                class="btn-check"
+                                type="radio"
+                                name="edgeNames"
+                                id="edgeNamesNumbers"
+                                value="numbers"
+                                data-setting="edgeNames">
+                            <label
+                                class="btn btn-outline-secondary"
+                                for="edgeNamesNumbers">
+                                Numbers
+                            </label>
+
+                            <input
+                                class="btn-check"
+                                type="radio"
+                                name="edgeNames"
+                                id="edgeNamesLetters"
+                                value="letters"
+                                data-setting="edgeNames">
+                            <label
+                                class="btn btn-outline-secondary"
+                                for="edgeNamesLetters">
+                                Letters
+                            </label>
+
+                            <input
+                                class="btn-check"
+                                type="radio"
+                                name="edgeNames"
+                                id="edgeNamesCustom"
+                                value="custom"
+                                data-setting="edgeNames">
+                            <label
+                                class="btn btn-outline-secondary"
+                                for="edgeNamesCustom">
+                                Prefix
+                            </label>
+
+                        </div>
 
                         <input
-                            class="btn-check"
-                            type="radio"
-                            name="edgeNames"
-                            id="edgeNamesLetters"
-                            value="letters"
-                            data-setting="edgeNames">
-                        <label
-                            class="btn btn-outline-secondary"
-                            for="edgeNamesLetters">
-                            Letters (a, b, c)
-                        </label>
+                            class="form-control w-25"
+                            type="text"
+                            id="edgePrefixSetting"
+                            placeholder="e"
+                            aria-label="Edge name prefix"
+                            data-setting="edgePrefix">
 
-                        <input
-                            class="btn-check"
-                            type="radio"
-                            name="edgeNames"
-                            id="edgeNamesNumbers"
-                            value="numbers"
-                            data-setting="edgeNames">
-                        <label
-                            class="btn btn-outline-secondary"
-                            for="edgeNamesNumbers">
-                            Numbers (1, 2, 3)
-                        </label>
+                    </div>
 
+                    <div
+                        class="form-text mb-4"
+                        id="edgeNamesPreview">
                     </div>
 
 
@@ -587,6 +688,7 @@
 
     <script src="js/settings.js"></script>
     <script src="js/graph/naming.js"></script>
+    <script src="js/graph/marquee.js"></script>
     <script src="js/graph/canvas.js"></script>
     <script src="js/graph/history.js"></script>
     <script src="js/graph/tools.js"></script>

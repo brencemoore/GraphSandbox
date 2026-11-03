@@ -5,7 +5,7 @@ const GraphTools = (() => {
 
     const MODES = {
         select: {
-            hint: "Select, drag, or marquee nodes and edges",
+            hint: "Click, drag, or marquee to select · Shift adds",
             cursor: "default",
         },
         node: {
@@ -33,9 +33,10 @@ const GraphTools = (() => {
 
     function addNode(position) {
         const id = GraphNaming.nextNodeId(cy);
+        const label = GraphNaming.nextNodeName(cy, AppSettings.get("nodeNames"), AppSettings.get("nodePrefix")) || id;
 
         GraphHistory.record();
-        cy.add({ group: "nodes", data: { id, label: id }, position });
+        cy.add({ group: "nodes", data: { id, label }, position });
     }
 
 
@@ -45,7 +46,7 @@ const GraphTools = (() => {
             return;
         }
 
-        const name = GraphNaming.nextEdgeName(cy, AppSettings.get("edgeNames"));
+        const name = GraphNaming.nextEdgeName(cy, AppSettings.get("edgeNames"), AppSettings.get("edgePrefix"));
 
         GraphHistory.record();
         cy.add({
@@ -170,14 +171,6 @@ const GraphTools = (() => {
     }
 
 
-    // A new marquee replaces the selection unless Shift is held.
-    function onBoxStart(event) {
-        if (!event.originalEvent.shiftKey) {
-            cy.elements().unselect();
-        }
-    }
-
-
     function onHoverElement(event) {
         if (activeTool === "select") {
             setCursor(event.target.selected() ? "move" : "pointer");
@@ -292,7 +285,6 @@ const GraphTools = (() => {
         cy.on("tap", onTapBackground);
         cy.on("tap", "node", onTapNode);
         cy.on("dbltap", onDoubleTap);
-        cy.on("boxstart", onBoxStart);
         cy.on("mouseover", "node, edge", onHoverElement);
         cy.on("mouseout", "node, edge", onLeaveElement);
         cy.on("grabon", "node", onGrabNode);

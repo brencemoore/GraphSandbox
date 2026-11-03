@@ -64,17 +64,39 @@ function bindControls(cy) {
 
 // Settings
 
+function setDarkMode(enabled) {
+    document.documentElement.setAttribute("data-bs-theme", enabled ? "dark" : "light");
+    GraphCanvas.refreshStyle();
+}
+
+
+// The prefix box only applies to the "Prefix" style; the preview shows what new names will look like.
+function updateNamingControls(kind) {
+    const style = AppSettings.get(`${kind}Names`);
+    const prefix = AppSettings.get(`${kind}Prefix`);
+    const plural = kind === "node" ? "nodes" : "edges";
+
+    document.getElementById(`${kind}PrefixSetting`).disabled = style !== "custom";
+    document.getElementById(`${kind}NamesPreview`).textContent = style === "none"
+        ? `New ${plural} have no name.`
+        : `New ${plural}: ${GraphNaming.examples(style, prefix).join(", ")}, …`;
+}
+
+
+const SETTING_HANDLERS = {
+    autoUpdate: value => AnalysisPanel.setAutoUpdate(value),
+    nodeNames: () => updateNamingControls("node"),
+    nodePrefix: () => updateNamingControls("node"),
+    edgeNames: () => updateNamingControls("edge"),
+    edgePrefix: () => updateNamingControls("edge"),
+    showLabels: value => GraphCanvas.setLabelsVisible(value),
+    showGrid: value => GraphCanvas.setGridVisible(value),
+    darkMode: setDarkMode,
+};
+
+
 function applySetting(key, value) {
-    if (key === "autoUpdate") {
-        AnalysisPanel.setAutoUpdate(value);
-    } else if (key === "showLabels") {
-        GraphCanvas.setLabelsVisible(value);
-    } else if (key === "showGrid") {
-        GraphCanvas.setGridVisible(value);
-    } else if (key === "darkMode") {
-        document.documentElement.setAttribute("data-bs-theme", value ? "dark" : "light");
-        GraphCanvas.refreshStyle();
-    }
+    SETTING_HANDLERS[key](value);
 }
 
 
@@ -109,8 +131,11 @@ function initApp() {
     GraphSummary.init(cy);
     AnalysisPanel.init(cy);
 
+    Marquee.init(cy);
+
     bindControls(cy);
     AppSettings.onChange(applySetting);
+    AppSettings.applyAll(applySetting);
 
     selectTool("select");
     updateHistoryButtons();

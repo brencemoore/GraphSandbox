@@ -23,7 +23,7 @@ const Inspector = (() => {
 
     function describe(target) {
         if (target.isNode()) {
-            return `Node ${target.id()}`;
+            return "Node";
         }
 
         return `Edge ${target.source().data("label")} – ${target.target().data("label")}`;

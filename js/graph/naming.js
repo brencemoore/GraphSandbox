@@ -1,5 +1,6 @@
 // Graph Naming
 // Default ids and names for new nodes and edges, and the text shown on edges.
+// Name styles: "numbers" (1, 2), "letters" (a, b), "custom" (prefix + number, e.g. v1, E2) or "none".
 
 const GraphNaming = (() => {
 
@@ -17,10 +18,40 @@ const GraphNaming = (() => {
     }
 
 
-    const EDGE_NAME_FORMATS = {
+    const STYLES = {
+        numbers: index => String(index),
         letters: letterName,
-        numbers: String,
+        custom: (index, prefix) => `${prefix}${index}`,
     };
+
+
+    // The name at a position in a style's sequence; empty for "none".
+    function nameAt(style, prefix, index) {
+        const format = STYLES[style];
+        return format ? format(index, prefix) : "";
+    }
+
+
+    // First name in the sequence that is not used yet.
+    function nextName(usedNames, style, prefix) {
+        if (!STYLES[style]) {
+            return "";
+        }
+
+        const used = new Set(usedNames);
+        let index = 1;
+
+        while (used.has(nameAt(style, prefix, index))) {
+            index++;
+        }
+
+        return nameAt(style, prefix, index);
+    }
+
+
+    function examples(style, prefix, count = 3) {
+        return Array.from({ length: count }, (_, index) => nameAt(style, prefix, index + 1));
+    }
 
 
     function nextNodeId(cy) {
@@ -29,22 +60,13 @@ const GraphNaming = (() => {
     }
 
 
-    // First name in the sequence that no edge uses yet; empty when edges are nameless.
-    function nextEdgeName(cy, style) {
-        const format = EDGE_NAME_FORMATS[style];
+    function nextNodeName(cy, style, prefix) {
+        return nextName(cy.nodes().map(node => node.data("label")), style, prefix);
+    }
 
-        if (!format) {
-            return "";
-        }
 
-        const usedNames = new Set(cy.edges().map(edge => edge.data("name")));
-        let index = 1;
-
-        while (usedNames.has(format(index))) {
-            index++;
-        }
-
-        return format(index);
+    function nextEdgeName(cy, style, prefix) {
+        return nextName(cy.edges().map(edge => edge.data("name")), style, prefix);
     }
 
 
@@ -60,6 +82,6 @@ const GraphNaming = (() => {
     }
 
 
-    return { nextNodeId, nextEdgeName, edgeLabel };
+    return { nextNodeId, nextNodeName, nextEdgeName, examples, edgeLabel };
 
 })();

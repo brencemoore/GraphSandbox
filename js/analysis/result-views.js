@@ -107,7 +107,7 @@ const ResultViews = (() => {
     }
 
 
-    // Tables: matrices and spectra. The first value in each row is its label.
+    // Tables: matrices, eigenvalues and eigenvectors. The first value in each row is its label.
 
     function tableHeader(columns) {
         const row = document.createElement("tr");
@@ -133,18 +133,33 @@ const ResultViews = (() => {
     }
 
 
-    function table(result) {
+    function tableElement(result) {
         const element = createElement("table", "table table-sm table-bordered table-hover font-monospace small text-end mb-0");
         element.append(tableHeader(result.columns), tableBody(result.rows));
 
         const wrapper = createElement("div", "table-responsive");
         wrapper.append(element);
-
-        return [heading(result), wrapper];
+        return wrapper;
     }
 
 
-    const RENDERERS = { properties, scores, table };
+    function table(result) {
+        return [heading(result), tableElement(result)];
+    }
+
+
+    // Several titled tables under one heading, e.g. eigenvalues and eigenvectors.
+    function tables(result) {
+        const sections = result.tables.flatMap(section => [
+            createElement("div", "small fw-semibold text-body-secondary mt-4 mb-2", section.title),
+            tableElement(section),
+        ]);
+
+        return [heading(result), ...sections];
+    }
+
+
+    const RENDERERS = { properties, scores, table, tables };
 
 
     // Returns the elements to place in a result container.

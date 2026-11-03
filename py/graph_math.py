@@ -4,6 +4,7 @@ The browser sends {"nodes": [{"id", "label"}], "edges": [{"source", "target", "n
 Every analysis takes the NetworkX graph and returns one of these result kinds:
 
 - table:      {"kind", "title", "columns": [str], "rows": [[label, value, ...]]}
+- tables:     {"kind", "title", "tables": [table, ...]}
 - scores:     {"kind", "title", "rows": [[node label, score]]}
 - properties: {"kind", "title", "highlights": [[name, value]], "rows": [[name, value]]}
 
@@ -57,8 +58,9 @@ def is_weighted(graph):
 
 
 def with_note(result, graph, note):
+    """Adds a note about edge values to a result when the graph has any."""
     if is_weighted(graph):
-        result["note"] = note
+        result["note"] = f"{result['note']} {note}" if "note" in result else note
     return result
 
 
@@ -99,14 +101,41 @@ def matrix_result(title, matrix, row_labels, column_labels):
     return table_result(title, [""] + column_labels, rows)
 
 
-def spectrum_result(title, matrix, descending):
-    eigenvalues = np.sort(np.linalg.eigvalsh(matrix))
+def orient_eigenvectors(eigenvectors):
+    """Eigenvectors are only defined up to sign, so flip each to make its largest entry positive."""
+    for column in eigenvectors.T:
+        if column[np.argmax(np.abs(column))] < 0:
+            column *= -1
+    return eigenvectors
+
+
+def eigen_decomposition(matrix, descending):
+    """Eigenvalues of a symmetric matrix in order, with unit eigenvectors as matching columns."""
+    eigenvalues, eigenvectors = np.linalg.eigh(matrix)
+    order = np.argsort(eigenvalues)
 
     if descending:
-        eigenvalues = eigenvalues[::-1]
+        order = order[::-1]
 
-    rows = [[f"λ{index}", format_value(value)] for index, value in enumerate(eigenvalues, start=1)]
-    return table_result(title, ["", "Eigenvalue"], rows)
+    return eigenvalues[order], orient_eigenvectors(eigenvectors[:, order])
+
+
+def spectral_result(title, graph, matrix, descending):
+    eigenvalues, eigenvectors = eigen_decomposition(matrix, descending)
+    names = [f"λ{index}" for index in range(1, len(eigenvalues) + 1)]
+
+    eigenvalue_rows = [[name, format_value(value)] for name, value in zip(names, eigenvalues)]
+
+    result = {
+        "kind": "tables",
+        "title": title,
+        "note": "Column λk is the unit-length eigenvector for eigenvalue λk.",
+        "tables": [
+            table_result("Eigenvalues", ["", "Eigenvalue"], eigenvalue_rows),
+            matrix_result("Eigenvectors", eigenvectors, vertex_labels(graph), names),
+        ],
+    }
+    return with_note(result, graph, STRENGTH_NOTE)
 
 
 def scores_result(title, graph, scores):
@@ -179,18 +208,15 @@ def oriented_incidence_matrix(graph):
 # Spectra
 
 def adjacency_spectrum(graph):
-    result = spectrum_result("Adjacency Eigenvalues", adjacency(graph), descending=True)
-    return with_note(result, graph, STRENGTH_NOTE)
+    return spectral_result("Adjacency Spectrum", graph, adjacency(graph), descending=True)
 
 
 def laplacian_spectrum(graph):
-    result = spectrum_result("Laplacian Eigenvalues", laplacian(graph), descending=False)
-    return with_note(result, graph, STRENGTH_NOTE)
+    return spectral_result("Laplacian Spectrum", graph, laplacian(graph), descending=False)
 
 
 def normalized_laplacian_spectrum(graph):
-    result = spectrum_result("Normalized Laplacian Eigenvalues", normalized_laplacian(graph), descending=False)
-    return with_note(result, graph, STRENGTH_NOTE)
+    return spectral_result("Normalized Laplacian Spectrum", graph, normalized_laplacian(graph), descending=False)
 
 
 # Centrality
