@@ -12,7 +12,11 @@ A browser sandbox for creating and analyzing simple graphs.
 
 - Do not add any package (npm, Python, or CDN) without asking first.
 - Third-party files are vendored: npm installs them, `scripts/copy-dependencies.js` copies them into `css/` and `js/` (runs on `npm install`). New dependencies are added to its `DEPENDENCIES` list; never edit the copied files.
-- Graph math runs in Python via Pyodide (NetworkX), loaded from `main.js` and vendored the same way. Pyodide and NetworkX still need approval before they are installed.
+- Graph math runs in Python via Pyodide: core files are vendored in `js/pyodide/`; NumPy, SciPy and NetworkX load from Pyodide's CDN at runtime. Analyses live in `py/graph_math.py`.
+
+## Running
+
+- `npm start` serves the app at http://localhost:8000 (`scripts/serve.py`). Pyodide does not work from `file://`.
 
 ## Code style
 

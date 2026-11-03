@@ -10,6 +10,11 @@ const DEPENDENCIES = [
     { from: "bootstrap/dist/css/bootstrap.min.css", to: "css" },
     { from: "bootstrap/dist/js/bootstrap.bundle.min.js", to: "js" },
     { from: "cytoscape/dist/cytoscape.min.js", to: "js" },
+    { from: "pyodide/pyodide.js", to: "js/pyodide" },
+    { from: "pyodide/pyodide.asm.mjs", to: "js/pyodide" },
+    { from: "pyodide/pyodide.asm.wasm", to: "js/pyodide" },
+    { from: "pyodide/pyodide-lock.json", to: "js/pyodide" },
+    { from: "pyodide/python_stdlib.zip", to: "js/pyodide" },
 ];
 
 

@@ -15,6 +15,7 @@
   "type": "commonjs",
   "main": "js/main.js",
   "scripts": {
+    "start": "python scripts/serve.py",
     "test": "echo \"Error: no test specified\" && exit 1",
     "copy-dependencies": "node scripts/copy-dependencies.js",
     "update-dependencies": "npm update && npm run copy-dependencies",
@@ -22,6 +23,7 @@
   },
   "dependencies": {
     "bootstrap": "^5.3.8",
-    "cytoscape": "^3.34.3"
+    "cytoscape": "^3.34.3",
+    "pyodide": "^314.0.7"
   }
 }

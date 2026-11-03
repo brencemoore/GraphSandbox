@@ -22,7 +22,9 @@
             </a>
 
             <div class="d-flex gap-2">
-                <button class="btn btn-outline-secondary">
+                <button
+                    class="btn btn-outline-secondary"
+                    id="newGraph">
                     New
                 </button>
 
@@ -59,19 +61,27 @@
 
                     <div class="d-grid gap-1">
 
-                        <button class="btn btn-primary text-start">
+                        <button
+                            class="btn btn-primary text-start"
+                            data-tool="select">
                             ↖ &nbsp; Select
                         </button>
 
-                        <button class="btn btn-outline-secondary text-start">
+                        <button
+                            class="btn btn-outline-secondary text-start"
+                            data-tool="vertex">
                             ● &nbsp; Vertex
                         </button>
 
-                        <button class="btn btn-outline-secondary text-start">
+                        <button
+                            class="btn btn-outline-secondary text-start"
+                            data-tool="edge">
                             — &nbsp; Edge
                         </button>
 
-                        <button class="btn btn-outline-secondary text-start">
+                        <button
+                            class="btn btn-outline-secondary text-start"
+                            data-tool="delete">
                             × &nbsp; Delete
                         </button>
 
@@ -80,36 +90,48 @@
                 </section>
 
 
-                <!-- Analysis -->
-                <section>
+                <!-- Selection -->
+                <section class="mb-4">
 
                     <h6 class="text-uppercase text-body-secondary small">
-                        Analysis
+                        Selection
                     </h6>
 
                     <div class="d-grid gap-1">
 
-                        <button class="btn btn-outline-secondary text-start">
-                            Properties
+                        <button
+                            class="btn btn-outline-secondary text-start"
+                            id="selectAll">
+                            Select all
                         </button>
 
-                        <button class="btn btn-outline-secondary text-start">
-                            Isomorphism
-                        </button>
-
-                        <button class="btn btn-outline-secondary text-start">
-                            Traversal
-                        </button>
-
-                        <button class="btn btn-outline-secondary text-start">
-                            Coloring
-                        </button>
-
-                        <button class="btn btn-outline-secondary text-start">
-                            Paths
+                        <button
+                            class="btn btn-outline-danger text-start"
+                            id="deleteSelected">
+                            Delete selected
                         </button>
 
                     </div>
+
+                </section>
+
+
+                <!-- Controls -->
+                <section>
+
+                    <h6 class="text-uppercase text-body-secondary small">
+                        Controls
+                    </h6>
+
+                    <ul class="list-unstyled small text-body-secondary mb-0">
+                        <li>Double-click: add vertex</li>
+                        <li>Drag canvas: pan</li>
+                        <li>Scroll: zoom</li>
+                        <li>Shift + drag: box select</li>
+                        <li>Del: delete selected</li>
+                        <li>Esc: clear selection</li>
+                        <li>Ctrl + Z / Y: undo / redo</li>
+                    </ul>
 
                 </section>
 
@@ -122,21 +144,40 @@
                 <!-- Toolbar -->
                 <div class="border-bottom p-2 d-flex justify-content-between align-items-center">
 
-                    <span class="text-body-secondary small">
-                        Graph
+                    <span
+                        class="text-body-secondary small"
+                        id="toolHint">
                     </span>
 
                     <div class="d-flex gap-2">
 
-                        <button class="btn btn-sm btn-outline-secondary">
+                        <button
+                            class="btn btn-sm btn-outline-secondary"
+                            id="undo">
                             Undo
                         </button>
 
-                        <button class="btn btn-sm btn-outline-secondary">
+                        <button
+                            class="btn btn-sm btn-outline-secondary"
+                            id="redo">
                             Redo
                         </button>
 
-                        <button class="btn btn-sm btn-outline-secondary">
+                        <button
+                            class="btn btn-sm btn-outline-secondary"
+                            id="zoomOut">
+                            −
+                        </button>
+
+                        <button
+                            class="btn btn-sm btn-outline-secondary"
+                            id="zoomIn">
+                            +
+                        </button>
+
+                        <button
+                            class="btn btn-sm btn-outline-secondary"
+                            id="fit">
                             Fit
                         </button>
 
@@ -148,7 +189,14 @@
                 <!-- Graph Canvas -->
                 <div class="flex-grow-1 position-relative">
 
-                    <div class="position-absolute top-50 start-50 translate-middle text-center">
+                    <div
+                        class="position-absolute top-0 start-0 w-100 h-100"
+                        id="graphCanvas">
+                    </div>
+
+                    <div
+                        class="position-absolute top-50 start-50 translate-middle text-center pe-none"
+                        id="emptyCanvas">
 
                         <div class="display-1 text-body-secondary">
                             ○
@@ -159,7 +207,7 @@
                         </h5>
 
                         <p class="text-body-secondary mb-0">
-                            Create vertices and edges to begin
+                            Double-click to add a vertex
                         </p>
 
                     </div>
@@ -167,7 +215,7 @@
                 </div>
 
 
-                <!-- Analysis Panel -->
+                <!-- Graph Properties -->
                 <div class="border-top bg-body-tertiary p-3">
 
                     <h6>
@@ -180,28 +228,28 @@
                             <small class="text-body-secondary d-block">
                                 Vertices
                             </small>
-                            <strong>0</strong>
+                            <strong id="vertexCount">0</strong>
                         </div>
 
                         <div>
                             <small class="text-body-secondary d-block">
                                 Edges
                             </small>
-                            <strong>0</strong>
+                            <strong id="edgeCount">0</strong>
                         </div>
 
                         <div>
                             <small class="text-body-secondary d-block">
                                 Components
                             </small>
-                            <strong>0</strong>
+                            <strong id="componentCount">0</strong>
                         </div>
 
                         <div>
                             <small class="text-body-secondary d-block">
                                 Degree Sequence
                             </small>
-                            <strong>—</strong>
+                            <strong id="degreeSequence">—</strong>
                         </div>
 
                     </div>
@@ -209,6 +257,59 @@
                 </div>
 
             </section>
+
+
+            <!-- Analysis -->
+            <aside class="col-3 border-start p-3 h-100 overflow-auto">
+
+                <h6 class="text-uppercase text-body-secondary small">
+                    Analysis
+                </h6>
+
+                <select
+                    class="form-select form-select-sm mb-2"
+                    id="analysisSelect">
+
+                    <optgroup label="Matrices">
+                        <option value="adjacency_matrix">Adjacency matrix</option>
+                        <option value="degree_matrix">Degree matrix</option>
+                        <option value="laplacian_matrix">Laplacian matrix</option>
+                        <option value="normalized_laplacian_matrix">Normalized Laplacian matrix</option>
+                        <option value="incidence_matrix">Incidence matrix</option>
+                        <option value="oriented_incidence_matrix">Oriented incidence matrix</option>
+                        <option value="distance_matrix">Distance matrix</option>
+                    </optgroup>
+
+                    <optgroup label="Spectra">
+                        <option value="adjacency_spectrum">Adjacency eigenvalues</option>
+                        <option value="laplacian_spectrum">Laplacian eigenvalues</option>
+                        <option value="normalized_laplacian_spectrum">Normalized Laplacian eigenvalues</option>
+                    </optgroup>
+
+                    <optgroup label="Centrality">
+                        <option value="degree_centrality">Degree centrality</option>
+                        <option value="betweenness_centrality">Betweenness centrality</option>
+                        <option value="closeness_centrality">Closeness centrality</option>
+                        <option value="harmonic_centrality">Harmonic centrality</option>
+                        <option value="eigenvector_centrality">Eigenvector centrality</option>
+                        <option value="pagerank">PageRank</option>
+                    </optgroup>
+
+                    <optgroup label="Structure">
+                        <option value="graph_properties">Graph properties</option>
+                    </optgroup>
+
+                </select>
+
+                <button
+                    class="btn btn-sm btn-primary w-100 mb-3"
+                    id="runAnalysis">
+                    Run
+                </button>
+
+                <div id="analysisResult"></div>
+
+            </aside>
 
         </div>
 
@@ -218,15 +319,17 @@
     <!-- Status Bar -->
     <footer class="border-top px-3 py-1 d-flex gap-4 text-body-secondary small">
 
-        <span>
+        <span id="statusVertices">
             Vertices: 0
         </span>
 
-        <span>
+        <span id="statusEdges">
             Edges: 0
         </span>
 
-        <span class="ms-auto">
+        <span
+            class="ms-auto"
+            id="statusMessage">
             Ready
         </span>
 
@@ -334,6 +437,16 @@
 
 
     <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/cytoscape.min.js"></script>
+    <script src="js/pyodide/pyodide.js"></script>
+
+    <script src="js/graph/canvas.js"></script>
+    <script src="js/graph/history.js"></script>
+    <script src="js/graph/tools.js"></script>
+    <script src="js/graph/properties.js"></script>
+    <script src="js/analysis/python-engine.js"></script>
+    <script src="js/analysis/analysis-panel.js"></script>
+    <script src="js/settings.js"></script>
     <script src="js/main.js"></script>
 
 </body>
