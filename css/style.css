@@ -37,8 +37,17 @@
 
 /* Tool Rail */
 
+/* Phones: a bar along the bottom. Tablets and up: a rail on the left. */
 .tool-rail {
-    width: 132px;
+    border-top: var(--bs-border-width) solid var(--bs-border-color);
+}
+
+@media (min-width: 768px) {
+    .tool-rail {
+        width: 132px;
+        border-top: 0;
+        border-right: var(--bs-border-width) solid var(--bs-border-color);
+    }
 }
 
 .tool-button {
@@ -79,6 +88,16 @@
 
 .analysis-panel {
     width: 440px;
+}
+
+/* Phones: the panel covers the screen and closes with its × button. */
+@media (max-width: 767.98px) {
+    .analysis-panel {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        z-index: 1030;
+    }
 }
 
 .analysis-panel .nav-underline {

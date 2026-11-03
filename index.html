@@ -15,43 +15,59 @@
 <body class="vh-100 d-flex flex-column">
 
     <!-- Header -->
-    <header class="d-flex align-items-center gap-4 px-4 py-3 border-bottom bg-body flex-shrink-0">
+    <header class="d-flex align-items-center gap-2 gap-md-4 px-3 px-md-4 py-2 py-md-3 border-bottom bg-body flex-shrink-0">
 
         <a class="d-flex align-items-center gap-2 fs-4 fw-semibold text-body text-decoration-none" href="#">
             <i class="bi bi-share-fill text-accent"></i>
-            <span>Graph<span class="text-accent">Sandbox</span></span>
+            <span class="d-none d-sm-inline">Graph<span class="text-accent">Sandbox</span></span>
         </a>
 
-        <span class="d-flex align-items-center gap-2 small text-body-secondary">
+        <span
+            class="d-flex align-items-center gap-2 small text-body-secondary"
+            id="pythonStatus">
             <span
                 class="p-1 rounded-circle d-inline-block bg-warning"
                 id="pythonStatusDot">
             </span>
-            <span id="pythonStatusText">Loading Python…</span>
+            <span
+                class="d-none d-md-inline"
+                id="pythonStatusText">
+                Loading Python…
+            </span>
         </span>
 
-        <div class="d-flex align-items-center gap-2 ms-auto">
+        <div class="d-flex align-items-center gap-1 gap-md-2 ms-auto">
 
             <button
-                class="btn btn-link text-body-secondary fs-5"
+                class="btn btn-link text-body-secondary fs-5 px-2"
                 id="undo"
                 title="Undo (Ctrl+Z)">
                 <i class="bi bi-arrow-90deg-left"></i>
             </button>
 
             <button
-                class="btn btn-link text-body-secondary fs-5"
+                class="btn btn-link text-body-secondary fs-5 px-2"
                 id="redo"
                 title="Redo (Ctrl+Y)">
                 <i class="bi bi-arrow-90deg-right"></i>
             </button>
 
-            <div class="vr mx-2"></div>
+            <div class="vr mx-1 mx-md-2 d-none d-sm-block"></div>
 
             <button
                 class="btn btn-outline-secondary"
-                id="newGraph">
-                New graph
+                id="newGraph"
+                title="New graph">
+                <i class="bi bi-file-earmark-plus d-lg-none"></i>
+                <span class="d-none d-lg-inline">New graph</span>
+            </button>
+
+            <button
+                class="btn btn-outline-secondary"
+                id="openSave"
+                title="Save graph">
+                <i class="bi bi-download"></i>
+                <span class="d-none d-lg-inline ms-1">Save</span>
             </button>
 
             <button
@@ -64,9 +80,10 @@
 
             <button
                 class="btn btn-accent"
-                id="toggleAnalysis">
-                <i class="bi bi-bar-chart-line me-1"></i>
-                Analyze
+                id="toggleAnalysis"
+                title="Analyze">
+                <i class="bi bi-bar-chart-line"></i>
+                <span class="d-none d-sm-inline ms-1">Analyze</span>
             </button>
 
         </div>
@@ -75,47 +92,51 @@
 
 
     <!-- Main Application -->
-    <main class="d-flex flex-grow-1 overflow-hidden">
+    <main class="d-flex flex-column flex-md-row flex-grow-1 overflow-hidden">
 
-        <!-- Tool Rail -->
-        <nav class="tool-rail d-flex flex-column gap-2 p-2 border-end bg-body flex-shrink-0">
+        <!-- Tool Rail: a bottom bar on phones, a side rail from tablets up -->
+        <nav class="tool-rail d-flex flex-md-column gap-1 gap-md-2 p-1 p-md-2 bg-body flex-shrink-0 order-last order-md-first">
 
             <button
-                class="btn tool-button d-flex flex-column align-items-center gap-1 py-2"
-                data-tool="select">
+                class="btn tool-button d-flex flex-column align-items-center gap-1 py-2 flex-fill flex-md-grow-0"
+                data-tool="select"
+                title="Select">
                 <i class="bi bi-cursor fs-5"></i>
-                Select
+                <span class="d-none d-sm-inline">Select</span>
             </button>
 
             <button
-                class="btn tool-button d-flex flex-column align-items-center gap-1 py-2"
-                data-tool="node">
+                class="btn tool-button d-flex flex-column align-items-center gap-1 py-2 flex-fill flex-md-grow-0"
+                data-tool="node"
+                title="Add node">
                 <i class="bi bi-crosshair fs-5"></i>
-                Add node
+                <span class="d-none d-sm-inline">Add node</span>
             </button>
 
             <button
-                class="btn tool-button d-flex flex-column align-items-center gap-1 py-2"
-                data-tool="edge">
+                class="btn tool-button d-flex flex-column align-items-center gap-1 py-2 flex-fill flex-md-grow-0"
+                data-tool="edge"
+                title="Connect nodes">
                 <i class="bi bi-bezier2 fs-5"></i>
-                Connect nodes
+                <span class="d-none d-sm-inline">Connect nodes</span>
             </button>
 
             <button
-                class="btn tool-button d-flex flex-column align-items-center gap-1 py-2"
-                data-tool="pan">
+                class="btn tool-button d-flex flex-column align-items-center gap-1 py-2 flex-fill flex-md-grow-0"
+                data-tool="pan"
+                title="Pan canvas">
                 <i class="bi bi-arrows-move fs-5"></i>
-                Pan canvas
+                <span class="d-none d-sm-inline">Pan canvas</span>
             </button>
 
-            <hr class="mx-3 my-1">
+            <hr class="mx-3 my-1 d-none d-md-block">
 
             <button
-                class="btn tool-button tool-button-danger d-flex flex-column align-items-center gap-1 py-2 mt-auto"
+                class="btn tool-button tool-button-danger d-flex flex-column align-items-center gap-1 py-2 flex-fill flex-md-grow-0 mt-md-auto"
                 id="deleteSelected"
                 title="Delete selection (Del)">
                 <i class="bi bi-trash3 fs-5"></i>
-                Delete
+                <span class="d-none d-sm-inline">Delete</span>
             </button>
 
         </nav>
@@ -155,18 +176,18 @@
                 </h5>
 
                 <p class="text-body-secondary mb-0">
-                    Double-click the canvas to add a node
+                    Double-click or double-tap to add a node
                 </p>
 
             </div>
 
 
             <!-- Workspace Header and Inspector -->
-            <div class="position-absolute top-0 start-0 m-4 d-flex flex-column align-items-start gap-3 pe-none">
+            <div class="position-absolute top-0 start-0 m-3 m-md-4 d-flex flex-column align-items-start gap-3 pe-none">
 
                 <div class="d-flex align-items-center gap-3">
-                    <span class="fs-5 fw-semibold">Graph workspace</span>
-                    <div class="vr"></div>
+                    <span class="fs-5 fw-semibold d-none d-sm-inline">Graph workspace</span>
+                    <div class="vr d-none d-sm-block"></div>
                     <span
                         class="text-body-secondary"
                         id="graphCounts">
@@ -222,14 +243,14 @@
 
 
             <!-- Tool Hint -->
-            <div class="position-absolute bottom-0 start-50 translate-middle-x mb-4 px-4 py-2 bg-body border rounded-pill shadow-sm small d-flex align-items-center gap-2 text-nowrap">
+            <div class="position-absolute bottom-0 start-50 translate-middle-x mb-4 px-4 py-2 bg-body border rounded-pill shadow-sm small d-none d-lg-flex align-items-center gap-2 text-nowrap">
                 <span class="p-1 rounded-circle d-inline-block bg-accent"></span>
                 <span id="toolHint"></span>
             </div>
 
 
             <!-- Zoom Controls -->
-            <div class="position-absolute bottom-0 end-0 m-4 btn-group bg-body shadow-sm">
+            <div class="position-absolute bottom-0 end-0 m-3 m-md-4 btn-group bg-body shadow-sm">
 
                 <button
                     class="btn btn-outline-secondary"
@@ -268,7 +289,7 @@
             class="analysis-panel d-flex flex-column border-start bg-body flex-shrink-0 d-none"
             id="analysisPanel">
 
-            <div class="px-4 pt-4">
+            <div class="px-3 px-md-4 pt-3 pt-md-4">
 
                 <div class="d-flex justify-content-between align-items-start">
 
@@ -353,7 +374,7 @@
 
             </div>
 
-            <div class="tab-content flex-grow-1 overflow-auto p-4 border-top">
+            <div class="tab-content flex-grow-1 overflow-auto p-3 p-md-4 border-top">
 
                 <!-- Metrics -->
                 <div
@@ -437,7 +458,7 @@
         aria-labelledby="settingsModalLabel"
         aria-hidden="true">
 
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
 
             <div class="modal-content">
 
@@ -484,9 +505,9 @@
                         Nodes
                     </label>
 
-                    <div class="d-flex gap-2">
+                    <div class="d-flex flex-wrap gap-2">
 
-                        <div class="btn-group flex-grow-1" role="group">
+                        <div class="btn-group btn-group-sm flex-grow-1" role="group">
 
                             <input
                                 class="btn-check"
@@ -530,7 +551,7 @@
                         </div>
 
                         <input
-                            class="form-control w-25"
+                            class="form-control form-control-sm w-25"
                             type="text"
                             id="nodePrefixSetting"
                             placeholder="v"
@@ -561,9 +582,9 @@
                         Edges
                     </label>
 
-                    <div class="d-flex gap-2">
+                    <div class="d-flex flex-wrap gap-2">
 
-                        <div class="btn-group flex-grow-1" role="group">
+                        <div class="btn-group btn-group-sm flex-grow-1" role="group">
 
                             <input
                                 class="btn-check"
@@ -620,7 +641,7 @@
                         </div>
 
                         <input
-                            class="form-control w-25"
+                            class="form-control form-control-sm w-25"
                             type="text"
                             id="edgePrefixSetting"
                             placeholder="e"
@@ -700,11 +721,205 @@
 
                 <div class="modal-footer">
 
+                    <span
+                        class="small text-accent me-auto fade"
+                        id="settingsSaved">
+                        <i class="bi bi-check2"></i>
+                        Saved
+                    </span>
+
                     <button
                         type="button"
                         class="btn btn-secondary"
                         data-bs-dismiss="modal">
                         Close
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- New Graph Modal -->
+    <div
+        class="modal fade"
+        id="newGraphModal"
+        tabindex="-1"
+        aria-labelledby="newGraphModalLabel"
+        aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title" id="newGraphModalLabel">
+                        Start a new graph?
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+                    <p class="mb-0">
+                        The current graph (<span id="newGraphCounts"></span>) will be deleted.
+                        You can still bring it back with Undo.
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-outline-secondary"
+                        data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn btn-danger"
+                        id="confirmNewGraph">
+                        Delete graph
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Save Modal -->
+    <div
+        class="modal fade"
+        id="saveModal"
+        tabindex="-1"
+        aria-labelledby="saveModalLabel"
+        aria-hidden="true">
+
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-fullscreen-md-down">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title" id="saveModalLabel">
+                        Save graph
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="row g-4">
+
+                        <!-- Preview -->
+                        <div class="col-md-7">
+                            <div
+                                class="ratio ratio-4x3 border rounded-3 bg-body-tertiary overflow-hidden"
+                                id="savePreview">
+                            </div>
+                        </div>
+
+
+                        <!-- Options -->
+                        <div class="col-md-5">
+
+                            <label
+                                class="form-label"
+                                for="saveFormat">
+                                Format
+                            </label>
+
+                            <select
+                                class="form-select"
+                                id="saveFormat">
+
+                                <optgroup label="Image">
+                                    <option value="png">PNG image</option>
+                                    <option value="jpg">JPG image</option>
+                                </optgroup>
+
+                                <optgroup label="Graph data">
+                                    <option value="json">JSON (node-link)</option>
+                                    <option value="graphml">GraphML</option>
+                                    <option value="gml">GML</option>
+                                    <option value="edges_csv">CSV edge list</option>
+                                    <option value="nodes_csv">CSV node list</option>
+                                    <option value="adjacency_csv">CSV adjacency matrix</option>
+                                </optgroup>
+
+                            </select>
+
+                            <div
+                                class="form-text mb-3"
+                                id="saveFormatHelp">
+                            </div>
+
+                            <label
+                                class="form-label"
+                                for="saveFileName">
+                                File name
+                            </label>
+
+                            <div class="input-group">
+
+                                <input
+                                    class="form-control"
+                                    id="saveFileName"
+                                    value="graph"
+                                    autocomplete="off">
+
+                                <span
+                                    class="input-group-text"
+                                    id="saveExtension">
+                                    .png
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-outline-secondary"
+                        data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn btn-accent"
+                        id="saveDownload">
+                        <i class="bi bi-download me-1"></i>
+                        Download
                     </button>
 
                 </div>
@@ -732,6 +947,8 @@
     <script src="js/analysis/python-engine.js"></script>
     <script src="js/analysis/result-views.js"></script>
     <script src="js/analysis/analysis-panel.js"></script>
+    <script src="js/graph/graph-data.js"></script>
+    <script src="js/save-dialog.js"></script>
     <script src="js/main.js"></script>
 
 </body>

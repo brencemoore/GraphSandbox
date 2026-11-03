@@ -8,9 +8,65 @@ const PYTHON_STATUS = {
     needsServer: { color: "bg-danger", text: "Run npm start to enable Python" },
 };
 
+const FEEDBACK_DURATION = 1800;
+const feedbackTimers = new Map();
+
 
 function bindButton(id, action) {
     document.getElementById(id).addEventListener("click", action);
+}
+
+
+// Feedback
+
+// Runs `undo` after a short delay, restarting the delay if the same element gets feedback again.
+function scheduleFeedbackReset(element, undo) {
+    clearTimeout(feedbackTimers.get(element));
+    feedbackTimers.set(element, setTimeout(undo, FEEDBACK_DURATION));
+}
+
+
+// Briefly shows a confirmation in place of a button's label.
+function flashButtonText(button, text) {
+    button.dataset.label ??= button.textContent.trim();
+    button.textContent = text;
+    scheduleFeedbackReset(button, () => { button.textContent = button.dataset.label; });
+}
+
+
+function showSettingsSaved() {
+    const indicator = document.getElementById("settingsSaved");
+    indicator.classList.add("show");
+    scheduleFeedbackReset(indicator, () => indicator.classList.remove("show"));
+}
+
+
+function renameWithFeedback(buttonId, rename, singular) {
+    const count = rename();
+    const text = count === 0
+        ? `No ${singular}s to rename`
+        : `✓ Renamed ${count} ${singular}${count === 1 ? "" : "s"}`;
+
+    flashButtonText(document.getElementById(buttonId), text);
+}
+
+
+// Dialogs
+
+// Asks before clearing, since a new graph deletes the current one.
+function requestNewGraph(cy) {
+    if (cy.elements().empty()) {
+        return;
+    }
+
+    document.getElementById("newGraphCounts").textContent = document.getElementById("graphCounts").textContent.trim();
+    bootstrap.Modal.getOrCreateInstance("#newGraphModal").show();
+}
+
+
+function confirmNewGraph() {
+    GraphTools.clearGraph();
+    bootstrap.Modal.getOrCreateInstance("#newGraphModal").hide();
 }
 
 
@@ -48,9 +104,11 @@ function bindControls(cy) {
         button.addEventListener("click", () => selectTool(button.dataset.tool));
     });
 
-    bindButton("newGraph", GraphTools.clearGraph);
-    bindButton("renameNodes", GraphTools.renameNodes);
-    bindButton("renameEdges", GraphTools.renameEdges);
+    bindButton("newGraph", () => requestNewGraph(cy));
+    bindButton("confirmNewGraph", confirmNewGraph);
+    bindButton("openSave", SaveDialog.open);
+    bindButton("renameNodes", () => renameWithFeedback("renameNodes", GraphTools.renameNodes, "node"));
+    bindButton("renameEdges", () => renameWithFeedback("renameEdges", GraphTools.renameEdges, "edge"));
     bindButton("deleteSelected", GraphTools.deleteSelected);
     bindButton("undo", GraphTools.undo);
     bindButton("redo", GraphTools.redo);
@@ -108,6 +166,7 @@ function setPythonStatus(state) {
     const status = PYTHON_STATUS[state];
     document.getElementById("pythonStatusDot").className = `p-1 rounded-circle d-inline-block ${status.color}`;
     document.getElementById("pythonStatusText").textContent = status.text;
+    document.getElementById("pythonStatus").title = status.text;
 }
 
 
@@ -133,11 +192,12 @@ function initApp() {
     Inspector.init(cy);
     GraphSummary.init(cy);
     AnalysisPanel.init(cy);
-
+    SaveDialog.init(cy);
     Marquee.init(cy);
 
     bindControls(cy);
     AppSettings.onChange(applySetting);
+    AppSettings.onChange(showSettingsSaved);
     AppSettings.applyAll(applySetting);
 
     selectTool("select");

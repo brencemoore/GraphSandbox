@@ -33,25 +33,6 @@ const GraphCanvas = (() => {
     }
 
 
-    // A small round handle drawn on a node's right edge, as an SVG background image.
-    function handleStyle(fill, ring, ringWidth) {
-        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14">`
-            + `<circle cx="7" cy="7" r="5" fill="${fill}" stroke="${ring}" stroke-width="${ringWidth}"/></svg>`;
-
-        return {
-            "background-image": `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`,
-            "background-width": 14,
-            "background-height": 14,
-            "background-position-x": "100%",
-            "background-position-y": "50%",
-            "background-offset-x": 7,
-            "background-clip": "none",
-            "background-image-containment": "over",
-            "bounds-expansion": 10,
-        };
-    }
-
-
     function baseStyles(colors) {
         return [
             {
@@ -124,7 +105,7 @@ const GraphCanvas = (() => {
     }
 
 
-    // While connecting: the source is filled with a hollow handle, the hovered target shows a solid one.
+    // While connecting: the source is filled with the accent, the hovered target is outlined in it.
     function connectStyles(colors) {
         return [
             {
@@ -134,7 +115,6 @@ const GraphCanvas = (() => {
                     "border-width": 2,
                     "border-color": colors.accentHover,
                     "color": "#fff",
-                    ...handleStyle(colors.accent, "#fff", 2.5),
                 },
             },
             {
@@ -143,7 +123,6 @@ const GraphCanvas = (() => {
                     "border-width": 2.5,
                     "border-color": colors.accent,
                     "background-color": colors.accentSubtle,
-                    ...handleStyle(colors.accent, "#fff", 1.5),
                 },
             },
         ];

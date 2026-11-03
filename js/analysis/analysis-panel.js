@@ -13,30 +13,6 @@ const AnalysisPanel = (() => {
     let latestRun = 0;
 
 
-    // Blank edge values are sent as null so Python can treat them as weight 1.
-    function edgeValue(edge) {
-        const value = edge.data("value");
-        return value === "" ? null : Number(value);
-    }
-
-
-    // Nodes are sent in numeric order so matrix rows follow node ids.
-    function graphData() {
-        const nodes = cy.nodes()
-            .sort((a, b) => Number(a.id()) - Number(b.id()))
-            .map(node => ({ id: node.id(), label: node.data("label") }));
-
-        const edges = cy.edges().map(edge => ({
-            source: edge.source().id(),
-            target: edge.target().id(),
-            name: edge.data("name"),
-            value: edgeValue(edge),
-        }));
-
-        return { nodes, edges };
-    }
-
-
     // Tabs either pick their analysis with a select or name it in data-analysis.
     function analysisName(pane) {
         const select = pane.querySelector("select");
@@ -61,7 +37,7 @@ const AnalysisPanel = (() => {
         }
 
         try {
-            const result = await PythonEngine.run(analysisName(pane), graphData());
+            const result = await PythonEngine.run(analysisName(pane), GraphData.serialize(cy));
 
             if (run === latestRun) {
                 container.replaceChildren(...ResultViews.render(result));

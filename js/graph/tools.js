@@ -3,6 +3,8 @@
 
 const GraphTools = (() => {
 
+    const IS_TOUCH_SCREEN = matchMedia("(pointer: coarse)").matches;
+
     const MODES = {
         select: {
             hint: "Click, drag, or marquee to select · Shift adds",
@@ -78,9 +80,10 @@ const GraphTools = (() => {
 
 
     // Renames every node (in id order) or edge (in creation order) with the current default pattern, as one undo step.
+    // Returns how many were renamed.
     function renameAll(elements, dataKey, style, prefix, fallback) {
         if (elements.empty()) {
-            return;
+            return 0;
         }
 
         GraphHistory.record();
@@ -89,17 +92,19 @@ const GraphTools = (() => {
                 element.data(dataKey, GraphNaming.nameAt(style, prefix, index + 1) || fallback(element));
             });
         });
+
+        return elements.length;
     }
 
 
     function renameNodes() {
         const nodes = cy.nodes().sort((a, b) => Number(a.id()) - Number(b.id()));
-        renameAll(nodes, "label", AppSettings.get("nodeNames"), AppSettings.get("nodePrefix"), node => node.id());
+        return renameAll(nodes, "label", AppSettings.get("nodeNames"), AppSettings.get("nodePrefix"), node => node.id());
     }
 
 
     function renameEdges() {
-        renameAll(cy.edges(), "name", AppSettings.get("edgeNames"), AppSettings.get("edgePrefix"), () => "");
+        return renameAll(cy.edges(), "name", AppSettings.get("edgeNames"), AppSettings.get("edgePrefix"), () => "");
     }
 
 
@@ -154,13 +159,14 @@ const GraphTools = (() => {
 
 
     // Only select mode selects; it drags a marquee, pan drags the view, other modes only drag nodes.
+    // Touch screens cannot marquee with one finger, so there select mode pans instead.
     function setTool(tool) {
         cancelEdge();
         activeTool = tool;
 
         cy.autounselectify(tool !== "select");
         cy.boxSelectionEnabled(tool === "select");
-        cy.userPanningEnabled(tool === "pan");
+        cy.userPanningEnabled(tool === "pan" || (tool === "select" && IS_TOUCH_SCREEN));
         cy.autoungrabify(tool === "pan");
 
         setCursor(MODES[tool].cursor);
