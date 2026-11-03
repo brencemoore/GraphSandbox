@@ -11,8 +11,9 @@ const GraphHistory = (() => {
     let redoStack = [];
 
 
+    // Classes and grab state only describe the current interaction (hover, connecting, dragging), so they are not kept.
     function snapshot() {
-        return cy.elements().jsons();
+        return cy.elements().jsons().map(json => ({ ...json, classes: "", grabbed: false }));
     }
 
 

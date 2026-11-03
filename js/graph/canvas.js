@@ -20,16 +20,39 @@ const GraphCanvas = (() => {
 
 
     // Colors come from CSS variables so the graph follows the light/dark theme.
-    function buildStyle() {
-        const colors = {
+    function themeColors() {
+        return {
             background: cssVariable("--bs-body-bg"),
             foreground: cssVariable("--bs-emphasis-color"),
             text: cssVariable("--bs-body-color"),
             edge: cssVariable("--bs-secondary-color"),
             accent: cssVariable("--gs-accent"),
+            accentHover: cssVariable("--gs-accent-hover"),
             accentSubtle: cssVariable("--gs-accent-subtle"),
         };
+    }
 
+
+    // A small round handle drawn on a node's right edge, as an SVG background image.
+    function handleStyle(fill, ring, ringWidth) {
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14">`
+            + `<circle cx="7" cy="7" r="5" fill="${fill}" stroke="${ring}" stroke-width="${ringWidth}"/></svg>`;
+
+        return {
+            "background-image": `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`,
+            "background-width": 14,
+            "background-height": 14,
+            "background-position-x": "100%",
+            "background-position-y": "50%",
+            "background-offset-x": 7,
+            "background-clip": "none",
+            "background-image-containment": "over",
+            "bounds-expansion": 10,
+        };
+    }
+
+
+    function baseStyles(colors) {
         return [
             {
                 selector: "node",
@@ -45,6 +68,7 @@ const GraphCanvas = (() => {
                     "font-weight": 600,
                     "text-valign": "center",
                     "text-halign": "center",
+                    "overlay-opacity": 0,
                 },
             },
             {
@@ -76,15 +100,59 @@ const GraphCanvas = (() => {
                     "line-color": colors.accent,
                 },
             },
+        ];
+    }
+
+
+    // Hovered and dragged nodes get a thick accent border and a dashed halo.
+    function hoverStyles(colors) {
+        return [
             {
-                selector: "node.edge-source",
+                selector: "node.hovered, node:grabbed",
                 style: {
-                    "border-width": 3,
+                    "border-width": 4,
                     "border-color": colors.accent,
-                    "border-style": "dashed",
+                    "background-color": colors.accentSubtle,
+                    "outline-width": 1,
+                    "outline-style": "dashed",
+                    "outline-color": colors.accent,
+                    "outline-opacity": 0.8,
+                    "outline-offset": 8,
                 },
             },
         ];
+    }
+
+
+    // While connecting: the source is filled with a hollow handle, the hovered target shows a solid one.
+    function connectStyles(colors) {
+        return [
+            {
+                selector: "node.edge-source",
+                style: {
+                    "background-color": colors.accent,
+                    "border-width": 2,
+                    "border-color": colors.accentHover,
+                    "color": "#fff",
+                    ...handleStyle(colors.accent, "#fff", 2.5),
+                },
+            },
+            {
+                selector: "node.edge-target",
+                style: {
+                    "border-width": 2.5,
+                    "border-color": colors.accent,
+                    "background-color": colors.accentSubtle,
+                    ...handleStyle(colors.accent, "#fff", 1.5),
+                },
+            },
+        ];
+    }
+
+
+    function buildStyle() {
+        const colors = themeColors();
+        return [...baseStyles(colors), ...hoverStyles(colors), ...connectStyles(colors)];
     }
 
 

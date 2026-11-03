@@ -119,7 +119,7 @@ const GraphTools = (() => {
 
     function startEdge(node) {
         edgeSource = node;
-        node.addClass("edge-source");
+        node.removeClass("hovered").addClass("edge-source");
     }
 
 
@@ -128,6 +128,9 @@ const GraphTools = (() => {
             edgeSource.removeClass("edge-source");
             edgeSource = null;
         }
+
+        cy.nodes(".edge-target").removeClass("edge-target");
+        EdgePreview.hide();
     }
 
 
@@ -139,6 +142,7 @@ const GraphTools = (() => {
 
         addEdge(edgeSource, node);
         cancelEdge();
+        node.addClass("hovered");
     }
 
 
@@ -206,6 +210,37 @@ const GraphTools = (() => {
 
     function onLeaveElement() {
         setCursor(MODES[activeTool].cursor);
+    }
+
+
+    // While connecting, a hovered node is shown as the edge's target; otherwise it gets the hover halo.
+    function onHoverNode(event) {
+        const node = event.target;
+
+        if (activeTool === "pan" || (edgeSource && node.same(edgeSource))) {
+            return;
+        }
+
+        node.addClass(edgeSource ? "edge-target" : "hovered");
+    }
+
+
+    function onLeaveNode(event) {
+        event.target.removeClass("hovered edge-target");
+    }
+
+
+    // Cytoscape sends no mouseout when the pointer leaves the canvas, so clear hover looks here.
+    function onLeaveCanvas() {
+        cy.nodes(".hovered, .edge-target").removeClass("hovered edge-target");
+    }
+
+
+    function onPointerMove(event) {
+        if (edgeSource) {
+            const target = cy.nodes(".edge-target");
+            EdgePreview.draw(edgeSource, event.renderedPosition, target.nonempty() ? target[0] : null);
+        }
     }
 
 
@@ -313,12 +348,16 @@ const GraphTools = (() => {
         cy.on("dbltap", onDoubleTap);
         cy.on("mouseover", "node, edge", onHoverElement);
         cy.on("mouseout", "node, edge", onLeaveElement);
+        cy.on("mouseover", "node", onHoverNode);
+        cy.on("mouseout", "node", onLeaveNode);
+        cy.on("mousemove", onPointerMove);
         cy.on("grabon", "node", onGrabNode);
         cy.on("dragfreeon", "node", onDropNode);
         cy.on("tapstart", "edge", onEdgePress);
         cy.on("tapdrag", onPointerDrag);
         cy.on("tapend", onPointerRelease);
 
+        cy.container().addEventListener("mouseleave", onLeaveCanvas);
         document.addEventListener("keydown", onKeyDown);
 
         setTool(activeTool);

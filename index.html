@@ -131,6 +131,18 @@
             </div>
 
 
+            <!-- Edge Preview -->
+            <svg
+                class="position-absolute top-0 start-0 w-100 h-100 pe-none text-accent d-none"
+                id="edgePreview">
+                <line
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-dasharray="8 6"
+                    stroke-linecap="round" />
+            </svg>
+
+
             <!-- Empty State -->
             <div
                 class="position-absolute top-50 start-50 translate-middle text-center pe-none"
@@ -711,6 +723,7 @@
     <script src="js/settings.js"></script>
     <script src="js/graph/naming.js"></script>
     <script src="js/graph/marquee.js"></script>
+    <script src="js/graph/edge-preview.js"></script>
     <script src="js/graph/canvas.js"></script>
     <script src="js/graph/history.js"></script>
     <script src="js/graph/tools.js"></script>

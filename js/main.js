@@ -127,6 +127,7 @@ function initApp() {
     const cy = GraphCanvas.create(document.getElementById("graphCanvas"));
 
     AppSettings.init();
+    EdgePreview.init();
     GraphHistory.init(cy, updateHistoryButtons);
     GraphTools.init(cy);
     Inspector.init(cy);
