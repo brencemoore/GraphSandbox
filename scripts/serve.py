@@ -28,5 +28,13 @@ class DevRequestHandler(http.server.SimpleHTTPRequestHandler):
 
 
 os.chdir(ROOT)
-print(f"GraphSandbox running at http://localhost:{PORT}")
-http.server.ThreadingHTTPServer(("", PORT), DevRequestHandler).serve_forever()
+server = http.server.ThreadingHTTPServer(("", PORT), DevRequestHandler)
+
+# flush=True: npm pipes stdout, so Python would otherwise buffer these lines.
+print(f"GraphSandbox running at http://localhost:{PORT}", flush=True)
+print("Press Ctrl+C to stop.", flush=True)
+
+try:
+    server.serve_forever()
+except KeyboardInterrupt:
+    print("Server stopped.")
