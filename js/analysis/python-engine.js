@@ -7,6 +7,7 @@ const PythonEngine = (() => {
     const SCRIPT_URL = "py/graph_math.py";
 
     let enginePromise = null;
+    let ready = false;
 
 
     // Loading by URL skips dependency resolution, which keeps NetworkX's
@@ -33,7 +34,13 @@ const PythonEngine = (() => {
         await pyodide.loadPackage(packageUrls(pyodide));
 
         pyodide.runPython(await fetchText(SCRIPT_URL));
+        ready = true;
         return pyodide.globals.get("run_analysis");
+    }
+
+
+    function isReady() {
+        return ready;
     }
 
 
@@ -54,6 +61,6 @@ const PythonEngine = (() => {
     }
 
 
-    return { load, run };
+    return { load, isReady, run };
 
 })();

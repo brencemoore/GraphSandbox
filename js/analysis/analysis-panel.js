@@ -1,104 +1,124 @@
 // Analysis Panel
-// Runs the selected analysis in Python and shows the result as a table.
+// Runs the active tab's analysis in Python and keeps it current as the graph changes.
 
 const AnalysisPanel = (() => {
 
+    const AUTO_UPDATE_DELAY = 250;
+
     let cy = null;
-    let select = null;
-    let runButton = null;
-    let resultContainer = null;
+    let panel = null;
+    let refreshButton = null;
+    let autoUpdate = true;
+    let updateTimer = null;
+    let latestRun = 0;
 
 
-    // Vertices are sent in numeric order so matrix rows match the labels.
+    // Nodes are sent in numeric order so matrix rows follow node ids.
     function graphData() {
         const nodes = cy.nodes()
-            .map(node => node.id())
-            .sort((a, b) => Number(a) - Number(b));
+            .sort((a, b) => Number(a.id()) - Number(b.id()))
+            .map(node => ({ id: node.id(), label: node.data("label") }));
 
-        const edges = cy.edges().map(edge => [edge.source().id(), edge.target().id()]);
+        const edges = cy.edges().map(edge => ({
+            source: edge.source().id(),
+            target: edge.target().id(),
+            name: edge.data("name"),
+        }));
 
         return { nodes, edges };
     }
 
 
-    // Rendering
-
-    function createElement(tag, className, text) {
-        const element = document.createElement(tag);
-        element.className = className;
-        element.textContent = text;
-        return element;
+    // Tabs either pick their analysis with a select or name it in data-analysis.
+    function analysisName(pane) {
+        const select = pane.querySelector("select");
+        return select ? select.value : pane.dataset.analysis;
     }
 
 
-    function renderMessage(text, variant) {
-        resultContainer.replaceChildren(createElement("div", `alert alert-${variant} small`, text));
-    }
-
-
-    function createHeader(columns) {
-        const row = document.createElement("tr");
-        columns.forEach(column => row.append(createElement("th", "", column)));
-
-        const head = document.createElement("thead");
-        head.append(row);
-        return head;
-    }
-
-
-    // The first value in each row is its label.
-    function createBody(rows) {
-        const body = document.createElement("tbody");
-
-        rows.forEach(([label, ...values]) => {
-            const row = document.createElement("tr");
-            row.append(createElement("th", "text-start", label));
-            values.forEach(value => row.append(createElement("td", "", value)));
-            body.append(row);
-        });
-
-        return body;
-    }
-
-
-    function renderTable(result) {
-        const table = createElement("table", "table table-sm table-bordered table-hover font-monospace small text-end mb-0");
-        table.append(createHeader(result.columns), createBody(result.rows));
-
-        const wrapper = createElement("div", "table-responsive");
-        wrapper.append(table);
-
-        resultContainer.replaceChildren(createElement("h6", "", result.title), wrapper);
+    function isOpen() {
+        return !panel.classList.contains("d-none");
     }
 
 
     // Running
 
-    async function run() {
-        runButton.disabled = true;
-        renderMessage("Running…", "secondary");
+    async function runActiveTab() {
+        const pane = panel.querySelector(".tab-pane.active");
+        const container = pane.querySelector("[data-result]");
+        const run = ++latestRun;
+
+        if (!PythonEngine.isReady()) {
+            container.replaceChildren(ResultViews.loading("Loading Python…"));
+        }
 
         try {
-            const result = await PythonEngine.run(select.value, graphData());
-            result.error ? renderMessage(result.error, "warning") : renderTable(result);
+            const result = await PythonEngine.run(analysisName(pane), graphData());
+
+            if (run === latestRun) {
+                container.replaceChildren(...ResultViews.render(result));
+            }
         } catch (error) {
-            renderMessage(`Python is unavailable: ${error.message}`, "danger");
-        } finally {
-            runButton.disabled = false;
+            container.replaceChildren(ResultViews.message(`Python is unavailable: ${error.message}`, "danger"));
         }
     }
 
 
-    function init(graph) {
-        cy = graph;
-        select = document.getElementById("analysisSelect");
-        runButton = document.getElementById("runAnalysis");
-        resultContainer = document.getElementById("analysisResult");
+    // Waits briefly so a burst of edits (or typing a name) runs once.
+    function scheduleUpdate() {
+        if (!autoUpdate || !isOpen()) {
+            return;
+        }
 
-        runButton.addEventListener("click", run);
+        clearTimeout(updateTimer);
+        updateTimer = setTimeout(runActiveTab, AUTO_UPDATE_DELAY);
     }
 
 
-    return { init };
+    function setAutoUpdate(enabled) {
+        autoUpdate = enabled;
+        refreshButton.classList.toggle("d-none", enabled);
+        scheduleUpdate();
+    }
+
+
+    // Opening and Closing
+
+    function open() {
+        panel.classList.remove("d-none");
+        GraphCanvas.resize();
+        runActiveTab();
+    }
+
+
+    function close() {
+        panel.classList.add("d-none");
+        GraphCanvas.resize();
+    }
+
+
+    function toggle() {
+        isOpen() ? close() : open();
+    }
+
+
+    // Setup
+
+    function init(graph) {
+        cy = graph;
+        panel = document.getElementById("analysisPanel");
+        refreshButton = document.getElementById("refreshAnalysis");
+
+        panel.querySelectorAll("select").forEach(select => select.addEventListener("change", runActiveTab));
+        panel.querySelectorAll("[data-bs-toggle='tab']").forEach(tab => tab.addEventListener("shown.bs.tab", runActiveTab));
+
+        refreshButton.addEventListener("click", runActiveTab);
+        document.getElementById("closeAnalysis").addEventListener("click", close);
+
+        cy.on("add remove data", scheduleUpdate);
+    }
+
+
+    return { init, toggle, setAutoUpdate };
 
 })();

@@ -1,32 +1,41 @@
 // Graph Tools
-// Mouse and keyboard editing of the graph: select, add vertex, add edge, delete.
+// Mouse and keyboard editing of the graph: select, add node, connect nodes, pan.
 
 const GraphTools = (() => {
 
-    const HINTS = {
-        select: "Drag vertices to move them. Shift + drag to select an area.",
-        vertex: "Click the canvas to add a vertex.",
-        edge: "Click two vertices to connect them.",
-        delete: "Click a vertex or edge to delete it.",
+    const MODES = {
+        select: {
+            hint: "Select, drag, or marquee nodes and edges",
+            cursor: "default",
+        },
+        node: {
+            hint: "Click the canvas to add a node",
+            cursor: "crosshair",
+        },
+        edge: {
+            hint: "Click two nodes to connect them",
+            cursor: "pointer",
+        },
+        pan: {
+            hint: "Drag to move the canvas",
+            cursor: "grab",
+        },
     };
 
     let cy = null;
     let activeTool = "select";
     let edgeSource = null;
     let dragStartState = null;
+    let edgeDrag = null;
 
 
     // Editing
 
-    function nextVertexId() {
-        const ids = cy.nodes().map(node => Number(node.id()));
-        return String(ids.length === 0 ? 1 : Math.max(...ids) + 1);
-    }
+    function addNode(position) {
+        const id = GraphNaming.nextNodeId(cy);
 
-
-    function addVertex(position) {
         GraphHistory.record();
-        cy.add({ group: "nodes", data: { id: nextVertexId() }, position });
+        cy.add({ group: "nodes", data: { id, label: id }, position });
     }
 
 
@@ -36,8 +45,13 @@ const GraphTools = (() => {
             return;
         }
 
+        const name = GraphNaming.nextEdgeName(cy, AppSettings.get("edgeNames"));
+
         GraphHistory.record();
-        cy.add({ group: "edges", data: { source: source.id(), target: target.id() } });
+        cy.add({
+            group: "edges",
+            data: { source: source.id(), target: target.id(), name, value: "" },
+        });
     }
 
 
@@ -62,11 +76,6 @@ const GraphTools = (() => {
     }
 
 
-    function selectAll() {
-        cy.elements().select();
-    }
-
-
     function undo() {
         cancelEdge();
         GraphHistory.undo();
@@ -79,7 +88,7 @@ const GraphTools = (() => {
     }
 
 
-    // Edge Tool
+    // Connect Tool
 
     function startEdge(node) {
         edgeSource = node;
@@ -106,9 +115,29 @@ const GraphTools = (() => {
     }
 
 
+    // Modes
+
+    function setCursor(cursor) {
+        cy.container().style.cursor = cursor;
+    }
+
+
+    // Only select mode selects; it drags a marquee, pan drags the view, other modes only drag nodes.
     function setTool(tool) {
         cancelEdge();
         activeTool = tool;
+
+        cy.autounselectify(tool !== "select");
+        cy.boxSelectionEnabled(tool === "select");
+        cy.userPanningEnabled(tool === "pan");
+        cy.autoungrabify(tool === "pan");
+
+        setCursor(MODES[tool].cursor);
+    }
+
+
+    function hint(tool) {
+        return MODES[tool].hint;
     }
 
 
@@ -121,8 +150,8 @@ const GraphTools = (() => {
 
         cancelEdge();
 
-        if (activeTool === "vertex") {
-            addVertex(event.position);
+        if (activeTool === "node") {
+            addNode(event.position);
         }
     }
 
@@ -130,34 +159,100 @@ const GraphTools = (() => {
     function onTapNode(event) {
         if (activeTool === "edge") {
             connectTo(event.target);
-        } else if (activeTool === "delete") {
-            removeElements(event.target);
-        }
-    }
-
-
-    function onTapEdge(event) {
-        if (activeTool === "delete") {
-            removeElements(event.target);
         }
     }
 
 
     function onDoubleTap(event) {
-        if (event.target === cy && activeTool !== "vertex") {
-            addVertex(event.position);
+        if (event.target === cy && activeTool !== "node" && activeTool !== "pan") {
+            addNode(event.position);
         }
     }
 
 
-    // Dragging moves every selected vertex, so one snapshot covers the whole move.
-    function onGrab() {
+    // A new marquee replaces the selection unless Shift is held.
+    function onBoxStart(event) {
+        if (!event.originalEvent.shiftKey) {
+            cy.elements().unselect();
+        }
+    }
+
+
+    function onHoverElement(event) {
+        if (activeTool === "select") {
+            setCursor(event.target.selected() ? "move" : "pointer");
+        }
+    }
+
+
+    function onLeaveElement() {
+        setCursor(MODES[activeTool].cursor);
+    }
+
+
+    // Dragging a node moves every selected node, so one snapshot covers the whole move.
+    function onGrabNode() {
         dragStartState = GraphHistory.snapshot();
     }
 
 
-    function onDragFree() {
+    function onDropNode() {
         GraphHistory.record(dragStartState);
+    }
+
+
+    // Cytoscape cannot drag edges, so dragging a selected edge moves
+    // the selected nodes and the endpoints of the selected edges.
+    // Cytoscape treats a drag from an edge like the background, so the marquee is paused meanwhile.
+    function onEdgePress(event) {
+        if (activeTool !== "select" || !event.target.selected()) {
+            return;
+        }
+
+        const selected = cy.elements(":selected");
+        cy.boxSelectionEnabled(false);
+
+        edgeDrag = {
+            edge: event.target,
+            nodes: selected.nodes().union(selected.edges().connectedNodes()),
+            lastPosition: { ...event.position },
+            startState: GraphHistory.snapshot(),
+            moved: false,
+        };
+    }
+
+
+    function onPointerDrag(event) {
+        if (!edgeDrag) {
+            return;
+        }
+
+        edgeDrag.nodes.shift({
+            x: event.position.x - edgeDrag.lastPosition.x,
+            y: event.position.y - edgeDrag.lastPosition.y,
+        });
+
+        edgeDrag.lastPosition = { ...event.position };
+        edgeDrag.moved = true;
+
+        // Releasing over the edge would otherwise count as a click that selects only it.
+        edgeDrag.edge.unselectify();
+    }
+
+
+    function onPointerRelease() {
+        if (!edgeDrag) {
+            return;
+        }
+
+        if (edgeDrag.moved) {
+            const edge = edgeDrag.edge;
+            GraphHistory.record(edgeDrag.startState);
+            setTimeout(() => edge.selectify());
+        }
+
+        edgeDrag = null;
+        cy.boxSelectionEnabled(activeTool === "select");
     }
 
 
@@ -196,15 +291,22 @@ const GraphTools = (() => {
 
         cy.on("tap", onTapBackground);
         cy.on("tap", "node", onTapNode);
-        cy.on("tap", "edge", onTapEdge);
         cy.on("dbltap", onDoubleTap);
-        cy.on("grabon", "node", onGrab);
-        cy.on("dragfreeon", "node", onDragFree);
+        cy.on("boxstart", onBoxStart);
+        cy.on("mouseover", "node, edge", onHoverElement);
+        cy.on("mouseout", "node, edge", onLeaveElement);
+        cy.on("grabon", "node", onGrabNode);
+        cy.on("dragfreeon", "node", onDropNode);
+        cy.on("tapstart", "edge", onEdgePress);
+        cy.on("tapdrag", onPointerDrag);
+        cy.on("tapend", onPointerRelease);
 
         document.addEventListener("keydown", onKeyDown);
+
+        setTool(activeTool);
     }
 
 
-    return { HINTS, init, setTool, deleteSelected, clearGraph, selectAll, undo, redo };
+    return { init, setTool, hint, deleteSelected, clearGraph, undo, redo };
 
 })();

@@ -4,8 +4,9 @@
 const GraphCanvas = (() => {
 
     const ZOOM_STEP = 1.25;
-    const FIT_PADDING = 40;
+    const FIT_PADDING = 60;
     const MAX_FIT_ZOOM = 1;
+    const GRID_SIZE = 24;
 
     let cy = null;
     let labelsVisible = true;
@@ -18,29 +19,30 @@ const GraphCanvas = (() => {
     }
 
 
-    // Colors come from Bootstrap variables so the graph follows the light/dark theme.
+    // Colors come from CSS variables so the graph follows the light/dark theme.
     function buildStyle() {
         const colors = {
             background: cssVariable("--bs-body-bg"),
             foreground: cssVariable("--bs-emphasis-color"),
             text: cssVariable("--bs-body-color"),
             edge: cssVariable("--bs-secondary-color"),
-            selected: cssVariable("--bs-primary"),
-            edgeSource: cssVariable("--bs-success"),
+            accent: cssVariable("--gs-accent"),
+            accentSubtle: cssVariable("--gs-accent-subtle"),
         };
 
         return [
             {
                 selector: "node",
                 style: {
-                    "width": 30,
-                    "height": 30,
+                    "width": 36,
+                    "height": 36,
                     "background-color": colors.background,
                     "border-width": 2,
                     "border-color": colors.foreground,
-                    "label": labelsVisible ? "data(id)" : "",
+                    "label": labelsVisible ? "data(label)" : "",
                     "color": colors.text,
-                    "font-size": 12,
+                    "font-size": 13,
+                    "font-weight": 600,
                     "text-valign": "center",
                     "text-halign": "center",
                 },
@@ -51,27 +53,35 @@ const GraphCanvas = (() => {
                     "width": 2,
                     "line-color": colors.edge,
                     "curve-style": "straight",
+                    "label": labelsVisible ? GraphNaming.edgeLabel : "",
+                    "color": colors.text,
+                    "font-size": 12,
+                    "text-background-color": colors.background,
+                    "text-background-opacity": 1,
+                    "text-background-padding": 2,
                 },
             },
             {
                 selector: "node:selected",
                 style: {
                     "border-width": 3,
-                    "border-color": colors.selected,
+                    "border-color": colors.accent,
+                    "background-color": colors.accentSubtle,
                 },
             },
             {
                 selector: "edge:selected",
                 style: {
                     "width": 3,
-                    "line-color": colors.selected,
+                    "line-color": colors.accent,
                 },
             },
             {
                 selector: "node.edge-source",
                 style: {
                     "border-width": 3,
-                    "border-color": colors.edgeSource,
+                    "border-color": colors.accent,
+                    "border-style": "dashed",
                 },
             },
         ];
@@ -86,6 +96,24 @@ const GraphCanvas = (() => {
     function setLabelsVisible(visible) {
         labelsVisible = visible;
         refreshStyle();
+    }
+
+
+    // Grid
+
+    function setGridVisible(visible) {
+        cy.container().classList.toggle("show-grid", visible);
+    }
+
+
+    // Moves the dot grid with the graph so it feels attached to the canvas.
+    function syncGrid() {
+        const size = GRID_SIZE * cy.zoom();
+        const pan = cy.pan();
+        const style = cy.container().style;
+
+        style.backgroundSize = `${size}px ${size}px`;
+        style.backgroundPosition = `${pan.x}px ${pan.y}px`;
     }
 
 
@@ -109,6 +137,11 @@ const GraphCanvas = (() => {
     }
 
 
+    function zoomPercent() {
+        return Math.round(cy.zoom() * 100);
+    }
+
+
     function fit() {
         if (cy.nodes().empty()) {
             cy.reset();
@@ -124,6 +157,12 @@ const GraphCanvas = (() => {
     }
 
 
+    // Call after the canvas container changes size.
+    function resize() {
+        cy.resize();
+    }
+
+
     // Setup
 
     function create(container) {
@@ -131,15 +170,27 @@ const GraphCanvas = (() => {
             container,
             style: buildStyle(),
             layout: { name: "preset" },
-            boxSelectionEnabled: true,
             minZoom: 0.2,
             maxZoom: 4,
         });
+
+        cy.on("viewport", syncGrid);
+        syncGrid();
 
         return cy;
     }
 
 
-    return { create, refreshStyle, setLabelsVisible, zoomIn, zoomOut, fit };
+    return {
+        create,
+        refreshStyle,
+        setLabelsVisible,
+        setGridVisible,
+        zoomIn,
+        zoomOut,
+        zoomPercent,
+        fit,
+        resize,
+    };
 
 })();

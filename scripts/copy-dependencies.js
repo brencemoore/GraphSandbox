@@ -9,6 +9,9 @@ const ROOT = path.resolve(__dirname, "..");
 const DEPENDENCIES = [
     { from: "bootstrap/dist/css/bootstrap.min.css", to: "css" },
     { from: "bootstrap/dist/js/bootstrap.bundle.min.js", to: "js" },
+    { from: "bootstrap-icons/font/bootstrap-icons.min.css", to: "css" },
+    { from: "bootstrap-icons/font/fonts/bootstrap-icons.woff2", to: "css/fonts" },
+    { from: "bootstrap-icons/font/fonts/bootstrap-icons.woff", to: "css/fonts" },
     { from: "cytoscape/dist/cytoscape.min.js", to: "js" },
     { from: "pyodide/pyodide.js", to: "js/pyodide" },
     { from: "pyodide/pyodide.asm.mjs", to: "js/pyodide" },
