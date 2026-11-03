@@ -3,11 +3,11 @@
 
 const GraphCanvas = (() => {
 
-    const ZOOM_STEP = 1.25;
+    const ZOOM_STEP = 1.35;
     const FIT_PADDING = 60;
     const MAX_FIT_ZOOM = 1;
     const GRID_SIZE = 24;
-    const WHEEL_ZOOM_SPEED = 0.002;
+    const WHEEL_ZOOM_SPEED = 0.003;
     const LINE_HEIGHT = 33;
 
     let cy = null;
