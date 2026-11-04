@@ -107,6 +107,8 @@ const Marquee = (() => {
         }
 
 
+        // Cytoscape only blocks the browser's own touch gestures over nodes or while panning. Without
+        // this, iOS Safari takes over a drag on empty canvas, cancels the touch, and the box never ends.
         function onTouchMove(event) {
             if (!drag) {
                 return;
@@ -116,6 +118,8 @@ const Marquee = (() => {
                 cancel();
                 return;
             }
+
+            event.originalEvent.preventDefault();
 
             const rendered = boxBetween(drag.renderedStart, event.renderedPosition);
             drag.end = { ...event.position };
@@ -141,6 +145,9 @@ const Marquee = (() => {
         cy.on("touchstart", onTouchStart);
         cy.on("touchmove", onTouchMove);
         cy.on("touchend", onTouchEnd);
+
+        // Cytoscape does not pass on touchcancel (e.g. an incoming call), so a cancelled box is cleared here.
+        cy.container().addEventListener("touchcancel", cancel);
     }
 
 
