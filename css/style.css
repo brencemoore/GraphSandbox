@@ -35,6 +35,21 @@
 }
 
 
+/* Page */
+
+/* The page fills exactly the visible screen and never scrolls, so the header and tools stay in view.
+   On phones 100vh includes the area behind the browser's address bar; 100dvh is what is actually visible. */
+html,
+body {
+    overscroll-behavior: none;
+}
+
+.app-shell {
+    height: 100vh;
+    height: 100dvh;
+}
+
+
 /* Tool Rail */
 
 /* Phones: a bar along the bottom. Tablets and up: a rail on the left. */
