@@ -116,6 +116,10 @@ Click **Compare** (on phones: the File menu → **Second workspace**) to open a 
 
 The graph isn't stored anywhere else, so the browser warns you before closing or leaving the page while a graph is on the canvas.
 
+### Help
+
+The **?** button in the header (on phones: the File menu → **Help & about**) gives a short guide to the tools, the header buttons and comparing two graphs.
+
 ### Settings
 
 Settings are saved in your browser and come back when you reopen the page.
@@ -129,7 +133,7 @@ Settings are saved in your browser and come back when you reopen the page.
 
 The layout works down to small phones such as the iPhone SE.
 
-- **Layout:** the tools move to a bar at the bottom, and the file actions are grouped in a menu.
+- **Layout:** the page fits the screen without scrolling, the tools move to a bar at the bottom, and the file actions and help are grouped in a menu.
 - **Panels and dialogs:** the analysis panel and dialogs open full screen.
 - **Touch:** double-tap to add a node, and pinch to zoom in any tool except Select.
 
@@ -156,6 +160,13 @@ scripts/serve.py         Local development server
 ```
 
 Much of the code in this project was generated with Claude Opus 5.5, Anthropic's AI model, through Claude Code, and then reviewed and directed by the author.
+
+
+## Issues and Support
+
+Found a bug or have an idea? [Open an issue on GitHub](https://github.com/brencemoore/GraphSandbox/issues/new/choose) (a free GitHub account is needed).
+
+If GraphSandbox is useful to you, you can [buy me a coffee](https://buymeacoffee.com/brence). It's greatly appreciated.
 
 
 ## License

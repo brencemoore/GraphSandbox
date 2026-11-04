@@ -71,7 +71,7 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body class="vh-100 d-flex flex-column">
+<body class="app-shell d-flex flex-column overflow-hidden">
 
     <!-- Header -->
     <header class="d-flex align-items-center gap-2 gap-md-4 px-3 px-md-4 py-2 py-md-3 border-bottom bg-body flex-shrink-0">
@@ -199,6 +199,16 @@
                             Second workspace
                         </button>
                     </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <button
+                            class="dropdown-item"
+                            data-bs-toggle="modal"
+                            data-bs-target="#helpModal">
+                            <i class="bi bi-question-circle me-2"></i>
+                            Help &amp; about
+                        </button>
+                    </li>
                 </ul>
 
             </div>
@@ -208,6 +218,15 @@
                 type="file"
                 id="openGraphFile"
                 accept=".json,.graphml,.xml,.gml,.csv,.txt,.edgelist">
+
+            <!-- Help: in the File menu on phones, where the header has no room -->
+            <button
+                class="btn btn-outline-secondary d-none d-md-inline-block"
+                data-bs-toggle="modal"
+                data-bs-target="#helpModal"
+                title="Help &amp; about">
+                <i class="bi bi-question-circle"></i>
+            </button>
 
             <button
                 class="btn btn-outline-secondary"
@@ -1167,6 +1186,190 @@
         </div>
 
     </template>
+
+
+    <!-- Help Modal: how to use the app, then about, issue reports and support -->
+    <div
+        class="modal fade"
+        id="helpModal"
+        tabindex="-1"
+        aria-labelledby="helpModalLabel"
+        aria-hidden="true">
+
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title" id="helpModalLabel">
+                        Help &amp; about
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <!-- Tools -->
+                    <h6>Tools</h6>
+
+                    <ul class="list-unstyled small mb-4">
+                        <li class="mb-2">
+                            <i class="bi bi-cursor text-accent me-2"></i>
+                            <strong>Select:</strong>
+                            click a node or edge, or drag on empty canvas to box-select (Shift adds). Drag a selected item to move the whole selection.
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-crosshair text-accent me-2"></i>
+                            <strong>Add node:</strong>
+                            click empty canvas to add a node. Double-clicking or double-tapping also adds one in Select and Connect.
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-bezier2 text-accent me-2"></i>
+                            <strong>Connect nodes:</strong>
+                            drag from one node to another, or click one and then the other.
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-arrows-move text-accent me-2"></i>
+                            <strong>Pan canvas:</strong>
+                            drag to move the view. The wheel, pinch and the zoom buttons zoom.
+                        </li>
+                        <li>
+                            <i class="bi bi-trash3 text-danger me-2"></i>
+                            <strong>Delete:</strong>
+                            removes everything selected.
+                        </li>
+                    </ul>
+
+                    <p class="small text-body-secondary mb-4">
+                        Select a single node or edge to rename it; edges also take a value, which the analysis uses as a weight.
+                        Graphs are simple: edges are undirected, with no loops or duplicates.
+                    </p>
+
+                    <!-- Header Buttons -->
+                    <h6>Header buttons</h6>
+
+                    <ul class="list-unstyled small mb-4">
+                        <li class="mb-2">
+                            <i class="bi bi-arrow-90deg-left text-body-secondary me-2"></i>
+                            <strong>Undo / Redo:</strong>
+                            step back or forward through your edits.
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-file-earmark-plus text-body-secondary me-2"></i>
+                            <strong>New graph, Open, Save:</strong>
+                            clear the canvas, load a graph file, or download the graph as an image or data file. On phones these are in the
+                            <i class="bi bi-folder2"></i>
+                            menu.
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-layout-split text-body-secondary me-2"></i>
+                            <strong>Compare:</strong>
+                            opens a second workspace for comparing two graphs.
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-gear text-body-secondary me-2"></i>
+                            <strong>Settings:</strong>
+                            default names, labels, grid, dark mode and automatic analysis updates.
+                        </li>
+                        <li>
+                            <i class="bi bi-bar-chart-line text-accent me-2"></i>
+                            <strong>Analyze:</strong>
+                            metrics, centrality, matrices and eigenvalues of the graph, updated as you edit.
+                        </li>
+                    </ul>
+
+                    <!-- Comparing Two Graphs -->
+                    <h6>Comparing two graphs</h6>
+
+                    <ul class="small mb-4">
+                        <li class="mb-1">
+                            With two workspaces open, Analyze is replaced by
+                            <strong>Isomorphism</strong>, which checks whether the two graphs have the same structure. Analysis works on one graph at a time.
+                        </li>
+                        <li class="mb-1">
+                            If they are isomorphic, it shows which node maps to which; if not, it explains why.
+                        </li>
+                        <li class="mb-1">
+                            Click a workspace or its tab to make it active. New graph, Open, Save and Undo act on the active one; the tools apply to both.
+                        </li>
+                        <li>
+                            Close a workspace with the
+                            <i class="bi bi-x-lg"></i>
+                            on its tab to get Analyze back.
+                        </li>
+                    </ul>
+
+                    <!-- Keyboard Shortcuts -->
+                    <h6>Keyboard shortcuts</h6>
+
+                    <p class="small mb-4">
+                        <kbd>Delete</kbd> removes the selection ·
+                        <kbd>Esc</kbd> clears it ·
+                        <kbd>Ctrl</kbd>+<kbd>Z</kbd> undo ·
+                        <kbd>Ctrl</kbd>+<kbd>Y</kbd> redo
+                    </p>
+
+                    <!-- About -->
+                    <div class="border-top pt-4">
+
+                        <h6>About</h6>
+
+                        <p class="small">
+                            GraphSandbox is a free tool for exploring graph theory by hand. The math runs in Python right in your browser, and your graphs never leave your device.
+                            More details are in the
+                            <a
+                                href="https://github.com/brencemoore/GraphSandbox#readme"
+                                target="_blank"
+                                rel="noopener">README</a>.
+                        </p>
+
+                        <p class="small">
+                            Found a problem? You can report it on GitHub (a free GitHub account is needed).
+                        </p>
+
+                        <p class="small">
+                            If GraphSandbox is useful to you, support or a donation would be greatly appreciated.
+                        </p>
+
+                        <div class="d-flex flex-wrap gap-2">
+
+                            <a
+                                class="btn btn-sm btn-outline-secondary"
+                                href="https://github.com/brencemoore/GraphSandbox/issues/new/choose"
+                                target="_blank"
+                                rel="noopener">
+                                <i class="bi bi-github me-1"></i>
+                                Report an issue
+                            </a>
+
+                            <a
+                                class="btn btn-sm btn-outline-secondary"
+                                href="https://buymeacoffee.com/brence"
+                                target="_blank"
+                                rel="noopener">
+                                <i class="bi bi-cup-hot me-1"></i>
+                                Buy me a coffee
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
 
 
     <!-- Isomorphism Modal: results are filled in by js/isomorphism-dialog.js -->
