@@ -283,6 +283,24 @@ const GraphTools = (() => {
         // Connect Tool Dragging
         // Pressing a node and dragging to another node connects them; releasing anywhere else cancels.
         // A plain click is still handled by onTapNode (click one node, then the other).
+        // Touch events report the node a drag started on and send no hover events, so the node
+        // under the pointer is looked up here instead; that works the same for mouse and touch.
+
+        function nodeAt(position) {
+            return cy.nodes().filter(node => {
+                const center = node.position();
+                return Math.hypot(position.x - center.x, position.y - center.y) <= node.outerWidth() / 2;
+            });
+        }
+
+
+        function highlightTarget(target) {
+            cy.nodes(".edge-target").difference(target).removeClass("edge-target");
+
+            if (target.nonempty() && !target.same(edgeSource)) {
+                target.addClass("edge-target");
+            }
+        }
 
         function onNodePress(event) {
             if (activeTool !== "edge") {
@@ -308,6 +326,7 @@ const GraphTools = (() => {
                 }
             }
 
+            highlightTarget(nodeAt(event.position).last());
             drawEdgePreview(event.renderedPosition);
         }
 
@@ -325,9 +344,9 @@ const GraphTools = (() => {
                 return;
             }
 
-            const target = event.target;
+            const target = nodeAt(event.position).last();
 
-            if (target !== cy && target.isNode()) {
+            if (target.nonempty()) {
                 addEdge(edgeSource, target);
             }
 
