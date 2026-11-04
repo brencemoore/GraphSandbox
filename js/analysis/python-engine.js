@@ -19,8 +19,10 @@ const PythonEngine = (() => {
     }
 
 
+    // "no-cache" asks the server whether the file changed (a small request when it hasn't), so the
+    // Python files always match the page instead of being an older copy from the browser's cache.
     async function fetchText(url) {
-        const response = await fetch(url);
+        const response = await fetch(url, { cache: "no-cache" });
 
         if (!response.ok) {
             throw new Error(`Could not load ${url}`);
