@@ -422,7 +422,7 @@
                 </div>
 
                 <ul
-                    class="nav nav-underline nav-fill mt-4"
+                    class="nav nav-underline nav-fill flex-nowrap overflow-x-auto text-nowrap mt-4"
                     role="tablist">
 
                     <li class="nav-item" role="presentation">
@@ -433,6 +433,17 @@
                             type="button"
                             role="tab">
                             Metrics
+                        </button>
+                    </li>
+
+                    <li class="nav-item" role="presentation">
+                        <button
+                            class="nav-link"
+                            data-bs-toggle="tab"
+                            data-bs-target="#routesTab"
+                            type="button"
+                            role="tab">
+                            Routes
                         </button>
                     </li>
 
@@ -481,6 +492,16 @@
                     id="metricsTab"
                     role="tabpanel"
                     data-analysis="graph_properties">
+                    <div data-result></div>
+                </div>
+
+
+                <!-- Routes: Euler and Hamilton routes with an example or the reason there is none -->
+                <div
+                    class="tab-pane fade"
+                    id="routesTab"
+                    role="tabpanel"
+                    data-analysis="graph_routes">
                     <div data-result></div>
                 </div>
 
@@ -1294,7 +1315,7 @@
                         <li>
                             <i class="bi bi-bar-chart-line text-accent me-2"></i>
                             <strong>Analyze:</strong>
-                            metrics (including Euler and Hamilton routes), centrality, matrices and eigenvalues of the graph, updated as you edit.
+                            metrics, Euler and Hamilton routes (with an example or the reason there is none), centrality, matrices and eigenvalues of the graph, updated as you edit.
                         </li>
                     </ul>
 

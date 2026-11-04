@@ -7,6 +7,7 @@ Every analysis takes the NetworkX graph and returns one of these result kinds:
 - tables:     {"kind", "title", "tables": [table, ...]}
 - scores:     {"kind", "title", "rows": [[node label, score]]}
 - properties: {"kind", "title", "highlights": [[name, value]], "rows": [[name, value]]}
+- routes:     {"kind", "title", "rows": [{"name", "definition", "verdict", "route", "reason"}]}
 
 Any result may also carry a "note" shown under its title.
 
@@ -22,7 +23,7 @@ from functools import partial
 import networkx as nx
 import numpy as np
 
-from graph_traversals import euler_circuit, euler_trail, hamilton_cycle, hamilton_path
+from graph_traversals import route_verdicts, routes_result
 
 
 DECIMALS = 4
@@ -320,7 +321,6 @@ def path_extent(graph, measure, connected):
 
 def graph_properties(graph):
     connected = nx.is_connected(graph)
-    label = partial(vertex_label, graph)
 
     highlights = [
         ("Nodes", graph.number_of_nodes()),
@@ -346,10 +346,7 @@ def graph_properties(graph):
         ("Tree", nx.is_tree(graph)),
         ("Bipartite", nx.is_bipartite(graph)),
         ("Planar", nx.is_planar(graph)),
-        ("Euler trail", euler_trail(graph, label)),
-        ("Euler circuit", euler_circuit(graph, label)),
-        ("Hamilton path", hamilton_path(graph, label)),
-        ("Hamilton cycle", hamilton_cycle(graph, label)),
+        *route_verdicts(graph, partial(vertex_label, graph)),
         ("Average clustering", nx.average_clustering(graph)),
         ("Transitivity", nx.transitivity(graph)),
         ("Algebraic connectivity", algebraic_connectivity(graph)),
@@ -364,10 +361,15 @@ def graph_properties(graph):
     return with_note(result, graph, PROPERTIES_NOTE)
 
 
+def graph_routes(graph):
+    return routes_result(graph, partial(vertex_label, graph))
+
+
 # Entry Point
 
 ANALYSES = {
     "graph_properties": graph_properties,
+    "graph_routes": graph_routes,
     "degree_centrality": degree_centrality,
     "betweenness_centrality": betweenness_centrality,
     "closeness_centrality": closeness_centrality,

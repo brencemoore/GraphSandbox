@@ -1,41 +1,77 @@
-"""Euler and Hamilton traversals for the Metrics tab.
+"""Euler and Hamilton routes, shown as Yes/No in the Metrics tab and explained in the Routes tab.
 
 Each check takes the NetworkX graph and a function that gives a vertex's label, and returns
-the text shown in the Metrics list: "Yes" with an example route, or "No" with a reason.
+{"verdict", "route", "reason"}: the verdict is "Yes", "No", "Unknown" or "—" (does not apply),
+the route is an example as a list of labels (or None), and the reason explains the verdict.
 
 Euler trails and circuits use every edge once; isolated nodes are ignored. Every Euler circuit
 is also an Euler trail. Hamilton paths and cycles visit every node once. Finding them is slow in
 the worst case, so the search stops after MAX_SEARCH_STEPS and reports that it gave up.
 """
 
+import re
+
 import networkx as nx
 
-MAX_ROUTE_LABELS = 8
+MAX_LISTED_NODES = 6
 MAX_SEARCH_STEPS = 50_000
+
+SEARCH_STOPPED = f"The search stopped after {MAX_SEARCH_STEPS:,} steps without finding a route or ruling one out."
 
 
 class SearchLimitReached(Exception):
     pass
 
 
-# Formatting
+# Results
 
-def route_text(route, label):
-    """'Yes (a → b → c → a)', listing at most MAX_ROUTE_LABELS stops."""
-    labels = [label(vertex) for vertex in route]
-    shown = " → ".join(labels[:MAX_ROUTE_LABELS])
-    more = " → …" if len(labels) > MAX_ROUTE_LABELS else ""
-    return f"Yes ({shown}{more})"
+def found(route, label, reason):
+    return {"verdict": "Yes", "route": [label(vertex) for vertex in route], "reason": reason}
 
 
-def plural(count, word):
-    return f"{count} {word}" if count == 1 else f"{count} {word}s"
+def not_found(reason):
+    return {"verdict": "No", "route": None, "reason": reason}
+
+
+def not_applicable(reason):
+    return {"verdict": "—", "route": None, "reason": reason}
+
+
+def unknown(reason):
+    return {"verdict": "Unknown", "route": None, "reason": reason}
+
+
+def natural_key(text):
+    """Sorts '2' before '10' and 'v2' before 'v10'."""
+    return [int(part) if part.isdigit() else part.lower() for part in re.split(r"(\d+)", text)]
+
+
+def listed(vertices, label):
+    """'a, b and c', listing at most MAX_LISTED_NODES labels."""
+    labels = sorted((label(vertex) for vertex in vertices), key=natural_key)
+
+    if len(labels) > MAX_LISTED_NODES:
+        return f"{', '.join(labels[:MAX_LISTED_NODES])} and {len(labels) - MAX_LISTED_NODES} more"
+
+    if len(labels) == 1:
+        return labels[0]
+
+    return f"{', '.join(labels[:-1])} and {labels[-1]}"
 
 
 # Euler
 
-def odd_degree_count(graph):
-    return sum(1 for _, degree in graph.degree if degree % 2 == 1)
+def nodes_with(vertices, label, description):
+    """'C and E have odd degree' or '4 nodes have odd degree (a, b, c and d)'."""
+    if len(vertices) == 1:
+        return f"{listed(vertices, label)} has {description}"
+    if len(vertices) == 2:
+        return f"{listed(vertices, label)} have {description}"
+    return f"{len(vertices)} nodes have {description} ({listed(vertices, label)})"
+
+
+def odd_degree_vertices(graph):
+    return [vertex for vertex, degree in graph.degree if degree % 2 == 1]
 
 
 def edge_subgraph(graph):
@@ -48,38 +84,53 @@ def edges_to_route(edges):
     return [source for source, _ in edges] + [edges[-1][1]]
 
 
-def euler_reason(graph, allowed_odd):
-    """Why there is no Euler route, or None when there is one."""
-    if not nx.is_connected(edge_subgraph(graph)):
-        return "No (edges are not all connected)"
+def euler_obstacle(graph):
+    """Why no Euler route of any kind exists, or None."""
+    if graph.number_of_edges() == 0:
+        return not_applicable("The graph has no edges to travel along.")
 
-    odd = odd_degree_count(graph)
-    if odd > allowed_odd:
-        return f"No ({plural(odd, 'odd-degree node')})"
+    if not nx.is_connected(edge_subgraph(graph)):
+        return not_found("The edges are split into separate pieces, so no single route can reach all of them.")
 
     return None
 
 
 def euler_circuit(graph, label):
-    if graph.number_of_edges() == 0:
-        return "— (no edges)"
+    obstacle = euler_obstacle(graph)
+    if obstacle:
+        return obstacle
 
-    reason = euler_reason(graph, allowed_odd=0)
-    if reason:
-        return reason
+    odd = odd_degree_vertices(graph)
+    if odd:
+        return not_found(
+            f"{nodes_with(odd, label, 'odd degree')}. A circuit leaves every node "
+            "as often as it arrives, so every node needs even degree."
+        )
 
-    return route_text(edges_to_route(nx.eulerian_circuit(edge_subgraph(graph))), label)
+    route = edges_to_route(nx.eulerian_circuit(edge_subgraph(graph)))
+    return found(route, label, "Every node has even degree and the edges are connected, so a circuit exists.")
 
 
 def euler_trail(graph, label):
-    if graph.number_of_edges() == 0:
-        return "— (no edges)"
+    obstacle = euler_obstacle(graph)
+    if obstacle:
+        return obstacle
 
-    reason = euler_reason(graph, allowed_odd=2)
-    if reason:
-        return reason
+    odd = odd_degree_vertices(graph)
+    if len(odd) > 2:
+        return not_found(
+            f"{nodes_with(odd, label, 'odd degree')}. A trail can only start and end at "
+            "odd-degree nodes, so at most 2 are allowed."
+        )
 
-    return route_text(edges_to_route(nx.eulerian_path(edge_subgraph(graph))), label)
+    route = edges_to_route(nx.eulerian_path(edge_subgraph(graph)))
+
+    if odd:
+        reason = f"Exactly 2 nodes have odd degree ({listed(odd, label)}), so a trail runs from one to the other."
+    else:
+        reason = "Every node has even degree, so the trail can be closed into a circuit."
+
+    return found(route, label, reason)
 
 
 # Hamilton
@@ -142,57 +193,95 @@ def satisfies_ore(graph):
     )
 
 
-def hamilton_cycle(graph, label):
-    nodes = graph.number_of_nodes()
+def search_result(graph, label, starts, closed, found_reason, none_reason):
+    try:
+        route = search_route(graph, starts, closed)
+    except SearchLimitReached:
+        if satisfies_ore(graph):
+            return {
+                "verdict": "Yes",
+                "route": None,
+                "reason": "Every two non-adjacent nodes have degrees adding up to at least the number of nodes, "
+                          "so Ore's theorem guarantees a Hamilton cycle. The search stopped before finding an example.",
+            }
+        return unknown(SEARCH_STOPPED)
 
-    if nodes < 3:
-        return "No (needs 3+ nodes)"
+    return found(route, label, found_reason) if route else not_found(none_reason)
+
+
+def hamilton_cycle(graph, label):
+    if graph.number_of_nodes() < 3:
+        return not_found("A cycle in a simple graph needs at least 3 nodes.")
 
     if not nx.is_connected(graph):
-        return "No (not connected)"
+        return not_found("The graph is not connected, so no route can reach every node.")
 
     weakest = min(graph, key=graph.degree)
     if graph.degree[weakest] < 2:
-        return f"No ({label(weakest)} has degree 1)"
+        return not_found(f"{label(weakest)} has degree {graph.degree[weakest]}. A cycle enters and leaves every node, so each needs degree 2 or more.")
 
     cut_vertex = next(nx.articulation_points(graph), None)
     if cut_vertex is not None:
-        return f"No (removing {label(cut_vertex)} disconnects the graph)"
+        return not_found(f"Removing {label(cut_vertex)} disconnects the graph, so a cycle would have to pass through it twice.")
 
     if bipartite_imbalance(graph):
-        return "No (bipartite with unequal sides)"
+        return not_found("The graph is bipartite with sides of different sizes. A cycle alternates sides, so the sides must be equal.")
 
-    try:
-        route = search_route(graph, [weakest], closed=True)
-    except SearchLimitReached:
-        return "Yes (by Ore's theorem)" if satisfies_ore(graph) else "Unknown (search took too long)"
-
-    return route_text(route, label) if route else "No"
+    return search_result(
+        graph, label, [weakest], closed=True,
+        found_reason="This cycle visits every node once and returns to the start.",
+        none_reason="An exhaustive search tried every possible route and none returns to the start after visiting every node.",
+    )
 
 
 def hamilton_path(graph, label):
-    nodes = graph.number_of_nodes()
-
-    if nodes == 0:
-        return "— (no nodes)"
+    if graph.number_of_nodes() == 0:
+        return not_applicable("The graph has no nodes.")
 
     if not nx.is_connected(graph):
-        return "No (not connected)"
+        return not_found("The graph is not connected, so no route can reach every node.")
 
     # A degree-1 node can only be an end of the path, and a path has two ends.
     leaves = [vertex for vertex in graph if graph.degree[vertex] == 1]
     if len(leaves) > 2:
-        return f"No ({len(leaves)} nodes have degree 1)"
+        return not_found(f"{nodes_with(leaves, label, 'degree 1')}. Each must be an end of the path, and a path has only 2 ends.")
 
     imbalance = bipartite_imbalance(graph)
     if imbalance is not None and imbalance > 1:
-        return f"No (bipartite sides differ by {imbalance})"
+        return not_found(f"The graph is bipartite and one side has {imbalance} more nodes. A path alternates sides, so they can differ by at most 1.")
 
     starts = leaves[:1] or sorted(graph, key=graph.degree)
 
-    try:
-        route = search_route(graph, starts, closed=False)
-    except SearchLimitReached:
-        return "Yes (by Ore's theorem)" if satisfies_ore(graph) else "Unknown (search took too long)"
+    return search_result(
+        graph, label, starts, closed=False,
+        found_reason="This path visits every node once.",
+        none_reason="An exhaustive search tried every possible route and none visits every node.",
+    )
 
-    return route_text(route, label) if route else "No"
+
+# Routes Tab
+
+ROUTES = [
+    ("Euler trail", "Uses every edge exactly once.", euler_trail),
+    ("Euler circuit", "Uses every edge exactly once and ends where it started.", euler_circuit),
+    ("Hamilton path", "Visits every node exactly once.", hamilton_path),
+    ("Hamilton cycle", "Visits every node exactly once and returns to the start.", hamilton_cycle),
+]
+
+
+def route_verdicts(graph, label):
+    """[name, verdict] for each route, for the Metrics list."""
+    return [(name, check(graph, label)["verdict"]) for name, _, check in ROUTES]
+
+
+def routes_result(graph, label):
+    rows = [
+        {"name": name, "definition": definition, **check(graph, label)}
+        for name, definition, check in ROUTES
+    ]
+    return {
+        "kind": "routes",
+        "title": "Euler and Hamilton routes",
+        "note": "Routes ignore edge values. Euler routes ignore nodes with no edges.",
+        "rows": rows,
+    }
