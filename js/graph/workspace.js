@@ -1,5 +1,5 @@
 // Workspace
-// One graph canvas with everything attached to it: undo history, tools, inspector, selection box,
+// One graph canvas with everything attached to it: undo history, tools, inspector, highlight box,
 // edge preview, counts and zoom controls. Built from the #workspaceTemplate markup.
 
 const Workspace = (() => {
@@ -43,7 +43,7 @@ const Workspace = (() => {
         workspace.header = part(root, "header");
 
         Inspector.create(cy, workspace.history, part(root, "inspector"));
-        Marquee.create(cy, part(root, "touch-marquee"));
+        HighlightBox.create(cy, part(root, "touch-highlight"));
         bindZoomControls(workspace);
 
         cy.on("select unselect add remove", () => callbacks.onSelectionChange(workspace));

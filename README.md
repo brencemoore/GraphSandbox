@@ -35,7 +35,7 @@ Then open http://localhost:8000. Press Ctrl+C in the terminal to stop the server
 
 | Tool | What it does |
 |---|---|
-| **Select** | Click a node or edge to select it. Drag on empty canvas to draw a box that selects every node and edge it touches; hold Shift to add to the selection. Drag a selected node or edge to move everything selected. |
+| **Select** | Click a node or edge to select it. Drag on empty canvas to highlight an area; every node and edge it touches is selected; hold Shift to add to the selection. Drag a selected node or edge to move everything selected. |
 | **Add node** | Click empty canvas to add a node. Drag empty canvas to pan. |
 | **Connect nodes** | Drag from one node to another, or click one and then the other, to add an edge. Nodes don't move with this tool. Drag empty canvas to pan. |
 | **Pan canvas** | Drag anywhere to move the view. |
@@ -138,7 +138,7 @@ The layout works down to small phones such as the iPhone SE.
 
 - **Layout:** the page fits the screen without scrolling, the tools move to a bar at the bottom, and the file actions and help are grouped in a menu.
 - **Panels and dialogs:** the analysis panel and dialogs open full screen.
-- **Touch:** double-tap to add a node, drag one finger on empty canvas in Select to draw a selection box, and pinch to zoom in any tool except Select.
+- **Touch:** double-tap to add a node, drag one finger on empty canvas in Select to highlight an area, and pinch to zoom in any tool except Select.
 
 
 ## How It's Built
