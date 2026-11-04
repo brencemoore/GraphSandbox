@@ -319,8 +319,18 @@ def path_extent(graph, measure, connected):
     return measure(graph, weight=WEIGHT)
 
 
+def face_count(graph, planar):
+    """Faces of a planar drawing, counting the outer region once: Euler's formula V − E + F = 1 + C."""
+    if not planar:
+        return "Not planar"
+
+    components = nx.number_connected_components(graph)
+    return graph.number_of_edges() - graph.number_of_nodes() + components + 1
+
+
 def graph_properties(graph):
     connected = nx.is_connected(graph)
+    planar = nx.is_planar(graph)
 
     highlights = [
         ("Nodes", graph.number_of_nodes()),
@@ -345,7 +355,8 @@ def graph_properties(graph):
         ("Girth", nx.girth(graph)),
         ("Tree", nx.is_tree(graph)),
         ("Bipartite", nx.is_bipartite(graph)),
-        ("Planar", nx.is_planar(graph)),
+        ("Planar", planar),
+        ("Faces", face_count(graph, planar)),
         ("Average clustering", nx.average_clustering(graph)),
         ("Transitivity", nx.transitivity(graph)),
         ("Algebraic connectivity", algebraic_connectivity(graph)),

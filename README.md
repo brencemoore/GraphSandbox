@@ -70,7 +70,7 @@ Click **Analyze** to open the analysis panel. Results update as you edit the gra
 
 | Tab | Contents |
 |---|---|
-| **Metrics** | Node, edge and component counts, density, connectivity, the fewest edges and fewest nodes whose removal disconnects the graph (with an example cut), degree sequence, diameter, radius, girth, and whether the graph is a tree, bipartite or planar, plus clustering, transitivity and algebraic connectivity |
+| **Metrics** | Node, edge and component counts, density, connectivity, the fewest edges and fewest nodes whose removal disconnects the graph (with an example cut), degree sequence, diameter, radius, girth, whether the graph is a tree, bipartite or planar, the number of faces when it's planar, plus clustering, transitivity and algebraic connectivity |
 | **Routes** | Whether the graph has an Euler trail, Euler circuit, Hamilton path or Hamilton cycle, each with an example route or the reason there is none |
 | **Centrality** | Degree, betweenness, closeness, harmonic, eigenvector and PageRank, shown as bars |
 | **Matrices** | Adjacency, degree, Laplacian, normalized Laplacian, incidence, oriented incidence and distance matrices |
