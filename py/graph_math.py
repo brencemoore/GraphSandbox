@@ -17,9 +17,12 @@ diameter, radius) treat them as lengths.
 """
 
 import json
+from functools import partial
 
 import networkx as nx
 import numpy as np
+
+from graph_traversals import euler_circuit, euler_trail, hamilton_cycle, hamilton_path
 
 
 DECIMALS = 4
@@ -317,6 +320,7 @@ def path_extent(graph, measure, connected):
 
 def graph_properties(graph):
     connected = nx.is_connected(graph)
+    label = partial(vertex_label, graph)
 
     highlights = [
         ("Nodes", graph.number_of_nodes()),
@@ -342,6 +346,10 @@ def graph_properties(graph):
         ("Tree", nx.is_tree(graph)),
         ("Bipartite", nx.is_bipartite(graph)),
         ("Planar", nx.is_planar(graph)),
+        ("Euler trail", euler_trail(graph, label)),
+        ("Euler circuit", euler_circuit(graph, label)),
+        ("Hamilton path", hamilton_path(graph, label)),
+        ("Hamilton cycle", hamilton_cycle(graph, label)),
         ("Average clustering", nx.average_clustering(graph)),
         ("Transitivity", nx.transitivity(graph)),
         ("Algebraic connectivity", algebraic_connectivity(graph)),

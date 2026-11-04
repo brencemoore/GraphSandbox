@@ -68,7 +68,7 @@ Click **Analyze** to open the analysis panel. Results update as you edit the gra
 
 | Tab | Contents |
 |---|---|
-| **Metrics** | Node, edge and component counts, density, connectivity, the fewest edges and fewest nodes whose removal disconnects the graph (with an example cut), degree sequence, diameter, radius, girth, and whether the graph is a tree, bipartite or planar, plus clustering, transitivity and algebraic connectivity |
+| **Metrics** | Node, edge and component counts, density, connectivity, the fewest edges and fewest nodes whose removal disconnects the graph (with an example cut), degree sequence, diameter, radius, girth, whether the graph is a tree, bipartite or planar, whether it has an Euler trail, Euler circuit, Hamilton path or Hamilton cycle (with an example route), plus clustering, transitivity and algebraic connectivity |
 | **Centrality** | Degree, betweenness, closeness, harmonic, eigenvector and PageRank, shown as bars |
 | **Matrices** | Adjacency, degree, Laplacian, normalized Laplacian, incidence, oriented incidence and distance matrices |
 | **Spectral** | Eigenvalues and unit eigenvectors of the adjacency, Laplacian and normalized Laplacian matrices |
@@ -79,6 +79,8 @@ How edge values are used depends on the measure:
 - **As distances:** distances, betweenness, closeness, harmonic centrality, diameter and radius.
 
 A note under each result says which applies.
+
+Euler and Hamilton routes ignore edge values. Euler routes ignore nodes with no edges. Finding a Hamilton path or cycle can take very long on some graphs, so the search stops after a fixed number of steps and shows **Unknown** if it hasn't decided by then. Small and typical graphs are decided right away.
 
 ### Comparing Two Graphs
 
@@ -154,6 +156,7 @@ js/workspaces.js         One or two workspaces, and which is active
 js/analysis/             Python engine, analysis panel, result views
 js/*.js                  Settings, save/open dialogs, confirmations, notifications
 py/graph_math.py         Analysis functions
+py/graph_traversals.py   Euler and Hamilton routes
 py/graph_compare.py      Isomorphism check
 py/graph_io.py           File import and export
 scripts/serve.py         Local development server
