@@ -1,6 +1,8 @@
 # GraphSandbox
 
-GraphSandbox is a browser app for drawing simple graphs and analyzing them. Click to add nodes, connect them with edges, give edges values, and see the graph's matrices, eigenvalues, centralities and structural properties update as you edit. Graphs can be saved as images or as data files that other graph tools, such as NetworkX, Gephi and igraph, can open.
+**Try it online: [brencemoore.github.io/GraphSandbox](https://brencemoore.github.io/GraphSandbox/)**
+
+GraphSandbox is a free browser app for drawing simple graphs and analyzing them. Click to add nodes, connect them with edges, give edges values, and see the graph's matrices, eigenvalues, centralities and structural properties update as you edit. Graphs can be saved as images or as data files that other graph tools, such as NetworkX, Gephi and igraph, can open.
 
 It's meant for exploring graph theory by hand: build a small graph, change it, and watch the math change with it.
 
@@ -24,7 +26,7 @@ npm start
 Then open http://localhost:8000. Press Ctrl+C in the terminal to stop the server.
 
 - **Serve it, don't double-click it:** opening `index.html` directly won't work, because the Python engine can't load from a file. `npm start` runs a small server (`scripts/serve.py`) that serves the files correctly.
-- **Internet needed for analysis:** the Python packages (NumPy, SciPy, NetworkX) are downloaded from Pyodide's CDN each time the page loads. The status dot in the header turns green when Python is ready, usually within 10–15 seconds. You can draw while it loads.
+- **Internet needed for analysis:** the Python packages (NumPy, SciPy, NetworkX) are downloaded from Pyodide's CDN. To keep the page fast, Python starts loading on your first click, tap or key press. The status dot in the header turns green when it's ready, usually within 10–15 seconds, and you can keep drawing meanwhile.
 
 
 ## Using It
