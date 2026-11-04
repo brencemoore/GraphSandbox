@@ -1,5 +1,6 @@
 // Main
-// Creates the graph and wires the page controls to the modules.
+// Creates the workspaces and wires the page controls to them. Header actions, undo/redo and
+// keyboard shortcuts act on the active workspace; the tool rail applies to every workspace.
 
 const PYTHON_STATUS = {
     loading: { color: "bg-warning", text: "Loading Python…" },
@@ -14,33 +15,39 @@ function bindButton(id, action) {
 }
 
 
+function activeWorkspace() {
+    return Workspaces.active();
+}
+
+
 // File Actions
 
 // Asks before clearing, since a new graph deletes the current one.
-async function requestNewGraph(cy) {
-    if (cy.elements().empty()) {
+async function requestNewGraph(workspace) {
+    if (workspace.cy.elements().empty()) {
         return;
     }
 
-    const counts = document.getElementById("graphCounts").textContent.trim();
+    const where = Workspaces.isSplit() ? ` in ${workspace.name}` : "";
     const confirmed = await ConfirmDialog.ask({
         title: "Start a new graph?",
-        message: `The current graph (${counts}) will be deleted. You can still bring it back with Undo.`,
+        message: `The current graph${where} (${workspace.summary.text()}) will be deleted. You can still bring it back with Undo.`,
         confirmLabel: "Delete graph",
     });
 
     if (confirmed) {
-        GraphTools.clearGraph();
+        workspace.tools.clearGraph();
     }
 }
 
 
 // File actions appear twice (header buttons and the phone menu), so they are bound by data-action.
-function bindFileActions(cy) {
+function bindFileActions() {
     const actions = {
-        newGraph: () => requestNewGraph(cy),
-        openGraph: OpenGraph.open,
-        saveGraph: SaveDialog.open,
+        newGraph: () => requestNewGraph(activeWorkspace()),
+        openGraph: () => OpenGraph.open(activeWorkspace()),
+        saveGraph: () => SaveDialog.open(activeWorkspace()),
+        addWorkspace: Workspaces.addSecond,
     };
 
     document.querySelectorAll("[data-action]").forEach(element => {
@@ -52,7 +59,7 @@ function bindFileActions(cy) {
 // Tools
 
 function selectTool(tool) {
-    GraphTools.setTool(tool);
+    Workspaces.all().forEach(workspace => workspace.tools.setTool(tool));
 
     document.querySelectorAll("[data-tool]").forEach(button => {
         button.classList.toggle("active", button.dataset.tool === tool);
@@ -63,45 +70,137 @@ function selectTool(tool) {
 
 
 function updateHistoryButtons() {
-    document.getElementById("undo").disabled = !GraphHistory.canUndo();
-    document.getElementById("redo").disabled = !GraphHistory.canRedo();
+    const { history } = activeWorkspace();
+    document.getElementById("undo").disabled = !history.canUndo();
+    document.getElementById("redo").disabled = !history.canRedo();
 }
 
 
-function updateDeleteButton(cy) {
-    document.getElementById("deleteSelected").disabled = cy.elements(":selected").empty();
+function updateDeleteButton() {
+    document.getElementById("deleteSelected").disabled = activeWorkspace().cy.elements(":selected").empty();
 }
 
 
-function updateZoomLevel() {
-    document.getElementById("zoomLevel").textContent = `${GraphCanvas.zoomPercent()}%`;
+// Keyboard
+
+function isTyping(event) {
+    return event.target.closest("input, select, textarea") !== null;
 }
 
 
-function bindControls(cy) {
+function onKeyDown(event) {
+    if (isTyping(event)) {
+        return;
+    }
+
+    const { tools } = activeWorkspace();
+    const key = event.key.toLowerCase();
+    const withCtrl = event.ctrlKey || event.metaKey;
+
+    if (key === "delete" || key === "backspace") {
+        tools.deleteSelected();
+    } else if (key === "escape") {
+        tools.clearSelection();
+    } else if (withCtrl && key === "z") {
+        event.preventDefault();
+        event.shiftKey ? tools.redo() : tools.undo();
+    } else if (withCtrl && key === "y") {
+        event.preventDefault();
+        tools.redo();
+    }
+}
+
+
+// Workspaces
+
+// Only the active workspace drives the undo/redo and delete buttons.
+const WORKSPACE_CALLBACKS = {
+    onHistoryChange: workspace => {
+        if (workspace === activeWorkspace()) {
+            updateHistoryButtons();
+        }
+    },
+    onSelectionChange: workspace => {
+        if (workspace === activeWorkspace()) {
+            updateDeleteButton();
+        }
+    },
+    onActivate: workspace => Workspaces.setActive(workspace),
+};
+
+
+function createWorkspaces() {
+    const tabs = document.querySelectorAll("[data-workspace-tab]");
+    return Array.from(tabs, (tab, index) => Workspace.create(index + 1, tab, WORKSPACE_CALLBACKS));
+}
+
+
+function resizeCanvases() {
+    Workspaces.all().forEach(workspace => workspace.canvas.resize());
+}
+
+
+// The counts over each canvas follow the setting; with two workspaces the workspace bar shows them instead.
+function updateWorkspaceHeaders() {
+    const visible = AppSettings.get("showCounts") && !Workspaces.isSplit();
+    Workspaces.all().forEach(workspace => workspace.header.classList.toggle("d-none", !visible));
+}
+
+
+// With two workspaces, analysis is replaced by the isomorphism check;
+// with one, the analysis panel follows the remaining workspace.
+function onWorkspacesChange() {
+    const split = Workspaces.isSplit();
+
+    document.getElementById("toggleAnalysis").classList.toggle("d-none", split);
+    document.getElementById("checkIsomorphism").classList.toggle("d-none", !split);
+    document.getElementById("toolHintPill").classList.toggle("d-lg-flex", !split);
+    document.querySelectorAll("[data-action='addWorkspace']").forEach(button => { button.disabled = split; });
+
+    if (split) {
+        AnalysisPanel.close();
+    } else {
+        AnalysisPanel.setGraph(activeWorkspace().cy);
+    }
+
+    updateWorkspaceHeaders();
+    updateHistoryButtons();
+    updateDeleteButton();
+}
+
+
+function checkIsomorphism() {
+    const [first, second] = Workspaces.visible();
+    IsomorphismDialog.open(first, second);
+}
+
+
+function bindControls() {
     document.querySelectorAll("[data-tool]").forEach(button => {
         button.addEventListener("click", () => selectTool(button.dataset.tool));
     });
 
-    bindFileActions(cy);
-    bindButton("deleteSelected", GraphTools.deleteSelected);
-    bindButton("undo", GraphTools.undo);
-    bindButton("redo", GraphTools.redo);
-    bindButton("zoomIn", GraphCanvas.zoomIn);
-    bindButton("zoomOut", GraphCanvas.zoomOut);
-    bindButton("fit", GraphCanvas.fit);
+    bindFileActions();
+    bindButton("deleteSelected", () => activeWorkspace().tools.deleteSelected());
+    bindButton("undo", () => activeWorkspace().tools.undo());
+    bindButton("redo", () => activeWorkspace().tools.redo());
     bindButton("toggleAnalysis", AnalysisPanel.toggle);
+    bindButton("checkIsomorphism", checkIsomorphism);
 
-    cy.on("select unselect add remove", () => updateDeleteButton(cy));
-    cy.on("zoom", updateZoomLevel);
+    document.addEventListener("keydown", onKeyDown);
 }
 
 
 // Settings
 
+function forEachCanvas(action) {
+    Workspaces.all().forEach(workspace => action(workspace.canvas));
+}
+
+
 function setDarkMode(enabled) {
     document.documentElement.setAttribute("data-bs-theme", enabled ? "dark" : "light");
-    GraphCanvas.refreshStyle();
+    forEachCanvas(canvas => canvas.refreshStyle());
 }
 
 
@@ -109,9 +208,9 @@ function setDarkMode(enabled) {
 // settings dialog renames existing nodes and edges when they change.
 const SETTING_HANDLERS = {
     autoUpdate: value => AnalysisPanel.setAutoUpdate(value),
-    showLabels: value => GraphCanvas.setLabelsVisible(value),
-    showCounts: value => document.getElementById("workspaceHeader").classList.toggle("d-none", !value),
-    showGrid: value => GraphCanvas.setGridVisible(value),
+    showLabels: value => forEachCanvas(canvas => canvas.setLabelsVisible(value)),
+    showCounts: updateWorkspaceHeaders,
+    showGrid: value => forEachCanvas(canvas => canvas.setGridVisible(value)),
     darkMode: setDarkMode,
 };
 
@@ -143,11 +242,11 @@ function loadPython() {
 
 // Leaving the Page
 
-// The graph only lives in this tab, so closing, reloading or going back would lose it.
+// The graphs only live in this tab, so closing, reloading or going back would lose them.
 // Browsers show their own "Leave site?" wording; a custom message is not allowed.
-function warnBeforeLeaving(cy) {
+function warnBeforeLeaving() {
     window.addEventListener("beforeunload", event => {
-        if (cy.elements().nonempty()) {
+        if (Workspaces.all().some(workspace => workspace.cy.elements().nonempty())) {
             event.preventDefault();
             event.returnValue = "";
         }
@@ -158,30 +257,26 @@ function warnBeforeLeaving(cy) {
 // Setup
 
 function initApp() {
-    const cy = GraphCanvas.create(document.getElementById("graphCanvas"));
-
     AppSettings.init();
-    EdgePreview.init();
-    GraphHistory.init(cy, updateHistoryButtons);
-    GraphTools.init(cy);
-    Inspector.init(cy);
-    GraphSummary.init(cy);
-    AnalysisPanel.init(cy);
-    ConfirmDialog.init();
-    SettingsDialog.init(cy);
-    SaveDialog.init(cy);
-    OpenGraph.init(cy);
-    Marquee.init(cy);
 
-    bindControls(cy);
+    const workspaces = createWorkspaces();
+    Workspaces.init(workspaces);
+
+    AnalysisPanel.init(workspaces[0].cy, resizeCanvases);
+    ConfirmDialog.init();
+    SettingsDialog.init(Workspaces.visible);
+    SaveDialog.init();
+    OpenGraph.init();
+    IsomorphismDialog.init();
+
+    bindControls();
     AppSettings.onChange(applySetting);
     AppSettings.applyAll(applySetting);
+    Workspaces.onChange(onWorkspacesChange);
 
     selectTool("select");
-    updateHistoryButtons();
-    updateDeleteButton(cy);
-    updateZoomLevel();
-    warnBeforeLeaving(cy);
+    onWorkspacesChange();
+    warnBeforeLeaving();
     loadPython();
 }
 

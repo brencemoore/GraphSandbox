@@ -1,5 +1,6 @@
 // Analysis Panel
 // Runs the active tab's analysis in Python and keeps it current as the graph changes.
+// It follows one workspace's graph at a time (see setGraph).
 
 const AnalysisPanel = (() => {
 
@@ -8,6 +9,7 @@ const AnalysisPanel = (() => {
     let cy = null;
     let panel = null;
     let refreshButton = null;
+    let onLayoutChange = () => {};
     let autoUpdate = true;
     let updateTimer = null;
     let latestRun = 0;
@@ -66,18 +68,38 @@ const AnalysisPanel = (() => {
     }
 
 
+    // Analyzes another graph from now on, e.g. when the remaining workspace changes.
+    function setGraph(graph) {
+        if (graph === cy) {
+            return;
+        }
+
+        cy?.off("add remove data", scheduleUpdate);
+        cy = graph;
+        cy.on("add remove data", scheduleUpdate);
+
+        if (isOpen()) {
+            runActiveTab();
+        }
+    }
+
+
     // Opening and Closing
 
     function open() {
         panel.classList.remove("d-none");
-        GraphCanvas.resize();
+        onLayoutChange();
         runActiveTab();
     }
 
 
     function close() {
+        if (!isOpen()) {
+            return;
+        }
+
         panel.classList.add("d-none");
-        GraphCanvas.resize();
+        onLayoutChange();
     }
 
 
@@ -88,10 +110,11 @@ const AnalysisPanel = (() => {
 
     // Setup
 
-    function init(graph) {
-        cy = graph;
+    // layoutChangeListener is called when the panel opens or closes, so canvases can resize.
+    function init(graph, layoutChangeListener) {
         panel = document.getElementById("analysisPanel");
         refreshButton = document.getElementById("refreshAnalysis");
+        onLayoutChange = layoutChangeListener;
 
         panel.querySelectorAll("select").forEach(select => select.addEventListener("change", runActiveTab));
         panel.querySelectorAll("[data-bs-toggle='tab']").forEach(tab => tab.addEventListener("shown.bs.tab", runActiveTab));
@@ -99,10 +122,10 @@ const AnalysisPanel = (() => {
         refreshButton.addEventListener("click", runActiveTab);
         document.getElementById("closeAnalysis").addEventListener("click", close);
 
-        cy.on("add remove data", scheduleUpdate);
+        setGraph(graph);
     }
 
 
-    return { init, toggle, setAutoUpdate };
+    return { init, toggle, close, setGraph, setAutoUpdate };
 
 })();

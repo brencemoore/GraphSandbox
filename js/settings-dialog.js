@@ -9,7 +9,7 @@ const SettingsDialog = (() => {
         edge: { style: "edgeNames", prefix: "edgePrefix", singular: "edge", plural: "edges" },
     };
 
-    let cy = null;
+    let getWorkspaces = () => [];
     let dialog = null;
     let modal = null;
     let draft = {};
@@ -71,8 +71,11 @@ const SettingsDialog = (() => {
     }
 
 
-    function elementsOf(kind) {
-        return kind === "node" ? cy.nodes() : cy.edges();
+    // How many nodes or edges there are across the open workspaces.
+    function countAll(kind) {
+        return getWorkspaces()
+            .map(workspace => (kind === "node" ? workspace.cy.nodes() : workspace.cy.edges()).length)
+            .reduce((total, count) => total + count, 0);
     }
 
 
@@ -88,13 +91,13 @@ const SettingsDialog = (() => {
 
         return Object.keys(NAMING).filter(kind => {
             const changed = exampleNames(kind, draft).join() !== exampleNames(kind, saved).join();
-            return changed && elementsOf(kind).nonempty();
+            return changed && countAll(kind) > 0;
         });
     }
 
 
     function renameSentence(kind) {
-        const items = countOf(kind, elementsOf(kind).length);
+        const items = countOf(kind, countAll(kind));
         const names = exampleNames(kind, draft);
 
         return names.every(name => name === "")
@@ -127,7 +130,10 @@ const SettingsDialog = (() => {
 
     function renameExisting(kinds) {
         const renamed = kinds.map(kind => {
-            const count = kind === "node" ? GraphTools.renameNodes() : GraphTools.renameEdges();
+            const count = getWorkspaces()
+                .map(({ tools }) => (kind === "node" ? tools.renameNodes() : tools.renameEdges()))
+                .reduce((total, renamedHere) => total + renamedHere, 0);
+
             return countOf(kind, count);
         });
 
@@ -165,8 +171,9 @@ const SettingsDialog = (() => {
     }
 
 
-    function init(graph) {
-        cy = graph;
+    // workspacesGetter returns the open workspaces, whose existing names may be renamed.
+    function init(workspacesGetter) {
+        getWorkspaces = workspacesGetter;
         dialog = document.getElementById("settingsModal");
         modal = bootstrap.Modal.getOrCreateInstance(dialog);
 

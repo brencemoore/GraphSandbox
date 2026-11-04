@@ -7,6 +7,11 @@
 
     <title>GraphSandbox</title>
 
+    <link
+        rel="icon"
+        href="favicon.svg"
+        type="image/svg+xml">
+
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/bootstrap-icons.min.css">
     <link rel="stylesheet" href="css/style.css">
@@ -81,6 +86,14 @@
                     <span class="d-none d-lg-inline ms-1">Save</span>
                 </button>
 
+                <button
+                    class="btn btn-outline-secondary"
+                    data-action="addWorkspace"
+                    title="Open a second workspace">
+                    <i class="bi bi-layout-split"></i>
+                    <span class="d-none d-lg-inline ms-1">Compare</span>
+                </button>
+
             </div>
 
             <div class="dropdown d-md-none">
@@ -119,6 +132,15 @@
                             Save…
                         </button>
                     </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <button
+                            class="dropdown-item"
+                            data-action="addWorkspace">
+                            <i class="bi bi-layout-split me-2"></i>
+                            Second workspace
+                        </button>
+                    </li>
                 </ul>
 
             </div>
@@ -143,6 +165,14 @@
                 title="Analyze">
                 <i class="bi bi-bar-chart-line"></i>
                 <span class="d-none d-sm-inline ms-1">Analyze</span>
+            </button>
+
+            <button
+                class="btn btn-accent d-none"
+                id="checkIsomorphism"
+                title="Check whether the two graphs are isomorphic">
+                <i class="bi bi-intersect"></i>
+                <span class="d-none d-sm-inline ms-1">Isomorphism</span>
             </button>
 
         </div>
@@ -201,145 +231,76 @@
         </nav>
 
 
-        <!-- Workspace -->
-        <section class="flex-grow-1 position-relative">
+        <!-- Workspaces: one, or two side by side (tabs on phones) -->
+        <section class="flex-grow-1 d-flex flex-column position-relative overflow-hidden">
 
-            <!-- Graph Canvas -->
+            <!-- Workspace Bar: shown with two workspaces; the active workspace's tab is highlighted -->
             <div
-                class="graph-canvas show-grid position-absolute top-0 start-0 w-100 h-100"
-                id="graphCanvas">
-            </div>
-
-
-            <!-- Edge Preview -->
-            <svg
-                class="position-absolute top-0 start-0 w-100 h-100 pe-none text-accent d-none"
-                id="edgePreview">
-                <line
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-dasharray="8 6"
-                    stroke-linecap="round" />
-            </svg>
-
-
-            <!-- Empty State -->
-            <div
-                class="position-absolute top-50 start-50 translate-middle text-center pe-none"
-                id="emptyCanvas">
-
-                <i class="bi bi-share display-4 text-body-secondary"></i>
-
-                <h5 class="mt-3">
-                    Start a graph
-                </h5>
-
-                <p class="text-body-secondary mb-0">
-                    Double-click or double-tap to add a node
-                </p>
-
-            </div>
-
-
-            <!-- Workspace Header and Inspector -->
-            <div class="position-absolute top-0 start-0 m-3 m-md-4 d-flex flex-column align-items-start gap-3 pe-none">
+                class="row g-0 border-bottom bg-body flex-shrink-0 d-none"
+                id="workspaceBar">
 
                 <div
-                    class="d-flex align-items-center gap-3"
-                    id="workspaceHeader">
-                    <span class="fs-5 fw-semibold d-none d-sm-inline">Graph workspace</span>
-                    <div class="vr d-none d-sm-block"></div>
-                    <span
-                        class="text-body-secondary"
-                        id="graphCounts">
-                        0 nodes · 0 edges
-                    </span>
+                    class="col d-flex overflow-hidden"
+                    data-workspace-tab>
+
+                    <button
+                        class="btn tool-button rounded-0 border-0 flex-grow-1 d-flex align-items-center gap-2 px-3 py-2 text-start overflow-hidden"
+                        data-role="tab-select">
+                        <span class="fw-semibold text-nowrap">Graph 1</span>
+                        <span
+                            class="text-truncate"
+                            data-role="tab-counts">
+                        </span>
+                    </button>
+
+                    <button
+                        class="btn tool-button rounded-0 border-0 px-3"
+                        data-role="tab-close"
+                        title="Close Graph 1">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+
                 </div>
 
                 <div
-                    class="card shadow-sm inspector pe-auto d-none"
-                    id="inspector">
+                    class="col d-flex overflow-hidden border-start"
+                    data-workspace-tab>
 
-                    <div class="card-body">
+                    <button
+                        class="btn tool-button rounded-0 border-0 flex-grow-1 d-flex align-items-center gap-2 px-3 py-2 text-start overflow-hidden"
+                        data-role="tab-select">
+                        <span class="fw-semibold text-nowrap">Graph 2</span>
+                        <span
+                            class="text-truncate"
+                            data-role="tab-counts">
+                        </span>
+                    </button>
 
-                        <h6
-                            class="card-title mb-3"
-                            id="inspectorTitle">
-                        </h6>
-
-                        <label
-                            class="form-label small text-body-secondary"
-                            for="elementName">
-                            Name
-                        </label>
-
-                        <input
-                            class="form-control form-control-sm"
-                            id="elementName"
-                            autocomplete="off">
-
-                        <div
-                            class="mt-2"
-                            id="edgeValueField">
-
-                            <label
-                                class="form-label small text-body-secondary"
-                                for="edgeValue">
-                                Value
-                            </label>
-
-                            <input
-                                class="form-control form-control-sm"
-                                id="edgeValue"
-                                type="number"
-                                step="any">
-
-                        </div>
-
-                    </div>
+                    <button
+                        class="btn tool-button rounded-0 border-0 px-3"
+                        data-role="tab-close"
+                        title="Close Graph 2">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
 
                 </div>
 
+            </div>
+
+
+            <!-- Workspaces are added here from #workspaceTemplate -->
+            <div
+                class="row g-0 flex-grow-1"
+                id="workspaces">
             </div>
 
 
             <!-- Tool Hint -->
-            <div class="position-absolute bottom-0 start-50 translate-middle-x mb-4 px-4 py-2 bg-body border rounded-pill shadow-sm small d-none d-lg-flex align-items-center gap-2 text-nowrap">
+            <div
+                class="position-absolute bottom-0 start-50 translate-middle-x mb-4 px-4 py-2 bg-body border rounded-pill shadow-sm small d-none d-lg-flex align-items-center gap-2 text-nowrap"
+                id="toolHintPill">
                 <span class="p-1 rounded-circle d-inline-block bg-accent"></span>
                 <span id="toolHint"></span>
-            </div>
-
-
-            <!-- Zoom Controls -->
-            <div class="position-absolute bottom-0 end-0 m-3 m-md-4 btn-group bg-body shadow-sm">
-
-                <button
-                    class="btn btn-outline-secondary"
-                    id="zoomOut"
-                    title="Zoom out">
-                    <i class="bi bi-dash-lg"></i>
-                </button>
-
-                <span
-                    class="btn btn-outline-secondary pe-none"
-                    id="zoomLevel">
-                    100%
-                </span>
-
-                <button
-                    class="btn btn-outline-secondary"
-                    id="zoomIn"
-                    title="Zoom in">
-                    <i class="bi bi-plus-lg"></i>
-                </button>
-
-                <button
-                    class="btn btn-outline-secondary"
-                    id="fit"
-                    title="Fit graph">
-                    <i class="bi bi-fullscreen"></i>
-                </button>
-
             </div>
 
         </section>
@@ -1016,6 +977,190 @@
     </div>
 
 
+    <!-- Workspace Template: one graph canvas with its overlays (js/graph/workspace.js) -->
+    <template id="workspaceTemplate">
+
+        <div class="col position-relative">
+
+            <!-- Graph Canvas -->
+            <div
+                class="graph-canvas show-grid position-absolute top-0 start-0 w-100 h-100"
+                data-role="canvas">
+            </div>
+
+
+            <!-- Edge Preview -->
+            <svg
+                class="position-absolute top-0 start-0 w-100 h-100 pe-none text-accent d-none"
+                data-role="edge-preview">
+                <line
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-dasharray="8 6"
+                    stroke-linecap="round" />
+            </svg>
+
+
+            <!-- Empty State -->
+            <div
+                class="position-absolute top-50 start-50 translate-middle text-center pe-none"
+                data-role="empty">
+
+                <i class="bi bi-share display-4 text-body-secondary"></i>
+
+                <h5 class="mt-3">
+                    Start a graph
+                </h5>
+
+                <p class="text-body-secondary mb-0">
+                    Double-click or double-tap to add a node
+                </p>
+
+            </div>
+
+
+            <!-- Workspace Header and Inspector -->
+            <div class="position-absolute top-0 start-0 m-3 m-md-4 d-flex flex-column align-items-start gap-3 pe-none">
+
+                <div
+                    class="d-flex align-items-center gap-3"
+                    data-role="header">
+                    <span class="fs-5 fw-semibold d-none d-sm-inline">Graph workspace</span>
+                    <div class="vr d-none d-sm-block"></div>
+                    <span
+                        class="text-body-secondary"
+                        data-role="counts">
+                    </span>
+                </div>
+
+                <div
+                    class="card shadow-sm inspector pe-auto d-none"
+                    data-role="inspector">
+
+                    <div class="card-body">
+
+                        <h6
+                            class="card-title mb-3"
+                            data-role="inspector-title">
+                        </h6>
+
+                        <label class="form-label small text-body-secondary w-100 mb-0">
+                            Name
+                            <input
+                                class="form-control form-control-sm mt-1"
+                                data-role="element-name"
+                                autocomplete="off">
+                        </label>
+
+                        <div
+                            class="mt-2"
+                            data-role="edge-value-field">
+
+                            <label class="form-label small text-body-secondary w-100 mb-0">
+                                Value
+                                <input
+                                    class="form-control form-control-sm mt-1"
+                                    data-role="edge-value"
+                                    type="number"
+                                    step="any">
+                            </label>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Zoom Controls -->
+            <div class="position-absolute bottom-0 end-0 m-3 m-md-4 btn-group bg-body shadow-sm">
+
+                <button
+                    class="btn btn-outline-secondary"
+                    data-role="zoom-out"
+                    title="Zoom out">
+                    <i class="bi bi-dash-lg"></i>
+                </button>
+
+                <span
+                    class="btn btn-outline-secondary pe-none"
+                    data-role="zoom-level">
+                    100%
+                </span>
+
+                <button
+                    class="btn btn-outline-secondary"
+                    data-role="zoom-in"
+                    title="Zoom in">
+                    <i class="bi bi-plus-lg"></i>
+                </button>
+
+                <button
+                    class="btn btn-outline-secondary"
+                    data-role="fit"
+                    title="Fit graph">
+                    <i class="bi bi-fullscreen"></i>
+                </button>
+
+            </div>
+
+        </div>
+
+    </template>
+
+
+    <!-- Isomorphism Modal: results are filled in by js/isomorphism-dialog.js -->
+    <div
+        class="modal fade"
+        id="isomorphismModal"
+        tabindex="-1"
+        aria-labelledby="isomorphismModalLabel"
+        aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title" id="isomorphismModalLabel">
+                        Isomorphism check
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                    </button>
+
+                </div>
+
+                <div
+                    class="modal-body"
+                    id="isomorphismResult">
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                        Close
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
     <!-- Notifications -->
     <div
         class="toast-container position-fixed top-0 start-50 translate-middle-x p-3"
@@ -1036,6 +1181,7 @@
     <script src="js/graph/tools.js"></script>
     <script src="js/graph/inspector.js"></script>
     <script src="js/graph/summary.js"></script>
+    <script src="js/graph/workspace.js"></script>
     <script src="js/analysis/python-engine.js"></script>
     <script src="js/analysis/result-views.js"></script>
     <script src="js/analysis/analysis-panel.js"></script>
@@ -1045,6 +1191,8 @@
     <script src="js/settings-dialog.js"></script>
     <script src="js/save-dialog.js"></script>
     <script src="js/open-graph.js"></script>
+    <script src="js/workspaces.js"></script>
+    <script src="js/isomorphism-dialog.js"></script>
     <script src="js/main.js"></script>
 
 </body>
