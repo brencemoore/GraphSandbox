@@ -1078,6 +1078,18 @@
             </svg>
 
 
+            <!-- Touch Selection Box: Cytoscape only draws its own box for a mouse (js/graph/marquee.js) -->
+            <svg
+                class="position-absolute top-0 start-0 w-100 h-100 pe-none text-accent d-none"
+                data-role="touch-marquee">
+                <rect
+                    fill="currentColor"
+                    fill-opacity="0.12"
+                    stroke="currentColor"
+                    stroke-width="1.5" />
+            </svg>
+
+
             <!-- Empty State -->
             <div
                 class="position-absolute top-50 start-50 translate-middle text-center pe-none"
@@ -1224,7 +1236,7 @@
                         <li class="mb-2">
                             <i class="bi bi-cursor text-accent me-2"></i>
                             <strong>Select:</strong>
-                            click a node or edge, or drag on empty canvas to box-select (Shift adds). Drag a selected item to move the whole selection.
+                            click a node or edge, or drag on empty canvas to box-select (Shift adds). On touch screens, drag one finger on empty canvas. Drag a selected item to move the whole selection.
                         </li>
                         <li class="mb-2">
                             <i class="bi bi-crosshair text-accent me-2"></i>

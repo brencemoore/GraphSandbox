@@ -43,7 +43,7 @@ const Workspace = (() => {
         workspace.header = part(root, "header");
 
         Inspector.create(cy, workspace.history, part(root, "inspector"));
-        Marquee.create(cy);
+        Marquee.create(cy, part(root, "touch-marquee"));
         bindZoomControls(workspace);
 
         cy.on("select unselect add remove", () => callbacks.onSelectionChange(workspace));
