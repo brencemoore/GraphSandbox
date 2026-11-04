@@ -6,7 +6,7 @@ const GraphTools = (() => {
 
     const MODES = {
         select: {
-            hint: "Click, drag, or marquee to select · Shift adds",
+            hint: "Click, or drag to highlight an area · Shift adds",
             cursor: "default",
         },
         node: {
@@ -182,7 +182,7 @@ const GraphTools = (() => {
         }
 
 
-        // Only select mode selects, and dragging empty canvas there draws a marquee.
+        // Only select mode selects, and dragging empty canvas there highlights an area.
         // Every other tool pans when dragging empty canvas (they only act on clicks).
         // Select never pans; mouse-wheel zoom works in every tool (canvas.js).
         // Leaving select clears the selection; nodes cannot be moved with the pan or connect tools.
@@ -367,7 +367,7 @@ const GraphTools = (() => {
 
         // Cytoscape cannot drag edges, so dragging a selected edge moves
         // the selected nodes and the endpoints of the selected edges.
-        // Cytoscape treats a drag from an edge like the background, so marquee and panning are paused meanwhile.
+        // Cytoscape treats a drag from an edge like the background, so highlighting and panning are paused meanwhile.
         function onEdgePress(event) {
             if (activeTool !== "select" || !event.target.selected()) {
                 return;

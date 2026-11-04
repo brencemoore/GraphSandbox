@@ -1,9 +1,10 @@
-// Marquee
-// Makes box selection select everything the box touches: every node whose shape overlaps it
-// and every edge whose line crosses it, not only elements lying wholly inside it. On touch screens,
-// where Cytoscape needs three fingers to box-select, a one-finger drag draws the box instead.
+// Highlight Box
+// Dragging empty canvas in the Select tool highlights an area (Cytoscape's box selection). This
+// selects everything the box touches: every node whose shape overlaps it and every edge whose line
+// crosses it, not only elements lying wholly inside it. On touch screens, where Cytoscape needs
+// three fingers to box-select, a one-finger drag draws the box instead.
 
-const Marquee = (() => {
+const HighlightBox = (() => {
 
     // Geometry
 
