@@ -4,10 +4,6 @@
 
 const Marquee = (() => {
 
-    let cy = null;
-    let origin = null;
-
-
     // Geometry
 
     function boxBetween(a, b) {
@@ -65,42 +61,44 @@ const Marquee = (() => {
     }
 
 
-    // Selection
+    // Instance
 
-    function selectTouched(box) {
-        cy.nodes()
-            .filter(node => boxesOverlap(node.boundingBox({ includeLabels: false }), box))
-            .select();
-
-        cy.edges()
-            .filter(edge => segmentTouchesBox(edge.source().position(), edge.target().position(), box))
-            .select();
-    }
+    function create(cy) {
+        let origin = null;
 
 
-    function onPress(event) {
-        origin = event.target === cy ? { ...event.position } : null;
-    }
+        function selectTouched(box) {
+            cy.nodes()
+                .filter(node => boxesOverlap(node.boundingBox({ includeLabels: false }), box))
+                .select();
 
-
-    // Cytoscape applies its own box selection right after "boxend", so ours runs just after it.
-    function onBoxEnd(event) {
-        if (!origin) {
-            return;
+            cy.edges()
+                .filter(edge => segmentTouchesBox(edge.source().position(), edge.target().position(), box))
+                .select();
         }
 
-        const box = boxBetween(origin, event.position);
-        setTimeout(() => selectTouched(box));
-    }
+
+        function onPress(event) {
+            origin = event.target === cy ? { ...event.position } : null;
+        }
 
 
-    function init(graph) {
-        cy = graph;
+        // Cytoscape applies its own box selection right after "boxend", so ours runs just after it.
+        function onBoxEnd(event) {
+            if (!origin) {
+                return;
+            }
+
+            const box = boxBetween(origin, event.position);
+            setTimeout(() => selectTouched(box));
+        }
+
+
         cy.on("tapstart", onPress);
         cy.on("boxend", onBoxEnd);
     }
 
 
-    return { init };
+    return { create };
 
 })();

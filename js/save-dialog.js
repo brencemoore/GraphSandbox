@@ -215,15 +215,15 @@ const SaveDialog = (() => {
 
     // Setup
 
-    function open() {
+    // Saves the given workspace's graph.
+    function open(workspace) {
+        cy = workspace.cy;
         refreshPreview();
         modal.show();
     }
 
 
-    function init(graph) {
-        cy = graph;
-
+    function init() {
         const dialog = document.getElementById("saveModal");
         modal = bootstrap.Modal.getOrCreateInstance(dialog);
         formatSelect = document.getElementById("saveFormat");

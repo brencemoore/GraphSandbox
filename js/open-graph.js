@@ -5,7 +5,7 @@ const OpenGraph = (() => {
 
     const MAX_FILE_BYTES = 5 * 1024 * 1024;
 
-    let cy = null;
+    let target = null;
     let fileInput = null;
 
 
@@ -47,8 +47,8 @@ const OpenGraph = (() => {
     }
 
 
-    function confirmReplace() {
-        if (cy.elements().empty()) {
+    function confirmReplace(workspace) {
+        if (workspace.cy.elements().empty()) {
             return Promise.resolve(true);
         }
 
@@ -62,7 +62,7 @@ const OpenGraph = (() => {
 
     // Loading
 
-    async function load(file) {
+    async function load(file, workspace) {
         if (file.size > MAX_FILE_BYTES) {
             Notify.show(`${file.name} is larger than 5 MB.`, "danger");
             return;
@@ -80,9 +80,9 @@ const OpenGraph = (() => {
                 return;
             }
 
-            if (await confirmReplace()) {
-                GraphTools.replaceGraph(toElements(graph));
-                GraphCanvas.fit();
+            if (await confirmReplace(workspace)) {
+                workspace.tools.replaceGraph(toElements(graph));
+                workspace.canvas.fit();
                 Notify.show(summary(file.name, graph));
             }
         } catch (error) {
@@ -96,18 +96,19 @@ const OpenGraph = (() => {
         fileInput.value = "";
 
         if (file) {
-            load(file);
+            load(file, target);
         }
     }
 
 
-    function open() {
+    // Opens a file into the given workspace.
+    function open(workspace) {
+        target = workspace;
         fileInput.click();
     }
 
 
-    function init(graph) {
-        cy = graph;
+    function init() {
         fileInput = document.getElementById("openGraphFile");
         fileInput.addEventListener("change", onFileChosen);
     }

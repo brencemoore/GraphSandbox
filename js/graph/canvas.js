@@ -1,5 +1,5 @@
 // Graph Canvas
-// Creates the Cytoscape instance and owns its styling and viewport controls.
+// Creates a Cytoscape instance and owns its styling and viewport controls (one per workspace).
 
 const GraphCanvas = (() => {
 
@@ -9,9 +9,6 @@ const GraphCanvas = (() => {
     const GRID_SIZE = 24;
     const WHEEL_ZOOM_SPEED = 0.003;
     const LINE_HEIGHT = 33;
-
-    let cy = null;
-    let labelsVisible = true;
 
 
     // Styling
@@ -35,7 +32,7 @@ const GraphCanvas = (() => {
     }
 
 
-    function baseStyles(colors) {
+    function baseStyles(colors, labelsVisible) {
         return [
             {
                 selector: "node",
@@ -131,113 +128,117 @@ const GraphCanvas = (() => {
     }
 
 
-    function buildStyle() {
+    function buildStyle(labelsVisible) {
         const colors = themeColors();
-        return [...baseStyles(colors), ...hoverStyles(colors), ...connectStyles(colors)];
+        return [...baseStyles(colors, labelsVisible), ...hoverStyles(colors), ...connectStyles(colors)];
     }
 
 
-    function refreshStyle() {
-        cy.style(buildStyle());
-    }
-
-
-    function setLabelsVisible(visible) {
-        labelsVisible = visible;
-        refreshStyle();
-    }
-
-
-    // Grid
-
-    function setGridVisible(visible) {
-        cy.container().classList.toggle("show-grid", visible);
-    }
-
-
-    // Moves the dot grid with the graph so it feels attached to the canvas.
-    function syncGrid() {
-        const size = GRID_SIZE * cy.zoom();
-        const pan = cy.pan();
-        const style = cy.container().style;
-
-        style.backgroundSize = `${size}px ${size}px`;
-        style.backgroundPosition = `${pan.x}px ${pan.y}px`;
-    }
-
-
-    // Viewport
-
-    function zoomBy(factor) {
-        cy.zoom({
-            level: cy.zoom() * factor,
-            renderedPosition: { x: cy.width() / 2, y: cy.height() / 2 },
-        });
-    }
-
-
-    function zoomIn() {
-        zoomBy(ZOOM_STEP);
-    }
-
-
-    function zoomOut() {
-        zoomBy(1 / ZOOM_STEP);
-    }
-
-
-    function zoomPercent() {
-        return Math.round(cy.zoom() * 100);
-    }
-
-
-    function fit() {
-        if (cy.nodes().empty()) {
-            cy.reset();
-            return;
-        }
-
-        cy.fit(cy.elements(), FIT_PADDING);
-
-        if (cy.zoom() > MAX_FIT_ZOOM) {
-            cy.zoom(MAX_FIT_ZOOM);
-            cy.center();
-        }
-    }
-
-
-    // Call after the canvas container changes size.
-    function resize() {
-        cy.resize();
-    }
-
-
-    // Cytoscape only wheel-zooms while drag-panning is on (Pan tool), so wheel zoom is handled
-    // here for every tool, at one consistent speed. Touch pinch-zoom is still Cytoscape's.
-    function onWheel(event) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        const pixels = event.deltaMode === WheelEvent.DOM_DELTA_LINE ? event.deltaY * LINE_HEIGHT : event.deltaY;
-        const bounds = cy.container().getBoundingClientRect();
-
-        cy.zoom({
-            level: cy.zoom() * Math.exp(-pixels * WHEEL_ZOOM_SPEED),
-            renderedPosition: { x: event.clientX - bounds.left, y: event.clientY - bounds.top },
-        });
-    }
-
-
-    // Setup
+    // Instance
 
     function create(container) {
-        cy = cytoscape({
+        let labelsVisible = true;
+
+        const cy = cytoscape({
             container,
-            style: buildStyle(),
+            style: buildStyle(labelsVisible),
             layout: { name: "preset" },
             minZoom: 0.2,
             maxZoom: 4,
         });
+
+
+        // Styling
+
+        function refreshStyle() {
+            cy.style(buildStyle(labelsVisible));
+        }
+
+
+        function setLabelsVisible(visible) {
+            labelsVisible = visible;
+            refreshStyle();
+        }
+
+
+        // Grid
+
+        function setGridVisible(visible) {
+            container.classList.toggle("show-grid", visible);
+        }
+
+
+        // Moves the dot grid with the graph so it feels attached to the canvas.
+        function syncGrid() {
+            const size = GRID_SIZE * cy.zoom();
+            const pan = cy.pan();
+
+            container.style.backgroundSize = `${size}px ${size}px`;
+            container.style.backgroundPosition = `${pan.x}px ${pan.y}px`;
+        }
+
+
+        // Viewport
+
+        function zoomBy(factor) {
+            cy.zoom({
+                level: cy.zoom() * factor,
+                renderedPosition: { x: cy.width() / 2, y: cy.height() / 2 },
+            });
+        }
+
+
+        function zoomIn() {
+            zoomBy(ZOOM_STEP);
+        }
+
+
+        function zoomOut() {
+            zoomBy(1 / ZOOM_STEP);
+        }
+
+
+        function zoomPercent() {
+            return Math.round(cy.zoom() * 100);
+        }
+
+
+        function fit() {
+            if (cy.nodes().empty()) {
+                cy.reset();
+                return;
+            }
+
+            cy.fit(cy.elements(), FIT_PADDING);
+
+            if (cy.zoom() > MAX_FIT_ZOOM) {
+                cy.zoom(MAX_FIT_ZOOM);
+                cy.center();
+            }
+        }
+
+
+        // Call after the canvas container changes size or becomes visible.
+        function resize() {
+            cy.resize();
+        }
+
+
+        // Cytoscape only wheel-zooms while drag-panning is on (Pan tool), so wheel zoom is handled
+        // here for every tool, at one consistent speed. Touch pinch-zoom is still Cytoscape's.
+        function onWheel(event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const pixels = event.deltaMode === WheelEvent.DOM_DELTA_LINE ? event.deltaY * LINE_HEIGHT : event.deltaY;
+            const bounds = container.getBoundingClientRect();
+
+            cy.zoom({
+                level: cy.zoom() * Math.exp(-pixels * WHEEL_ZOOM_SPEED),
+                renderedPosition: { x: event.clientX - bounds.left, y: event.clientY - bounds.top },
+            });
+        }
+
 
         cy.on("viewport", syncGrid);
         syncGrid();
@@ -245,20 +246,20 @@ const GraphCanvas = (() => {
         // Listening on the parent in the capture phase runs before Cytoscape's own wheel handler.
         container.parentElement.addEventListener("wheel", onWheel, { capture: true, passive: false });
 
-        return cy;
+        return {
+            cy,
+            refreshStyle,
+            setLabelsVisible,
+            setGridVisible,
+            zoomIn,
+            zoomOut,
+            zoomPercent,
+            fit,
+            resize,
+        };
     }
 
 
-    return {
-        create,
-        refreshStyle,
-        setLabelsVisible,
-        setGridVisible,
-        zoomIn,
-        zoomOut,
-        zoomPercent,
-        fit,
-        resize,
-    };
+    return { create };
 
 })();

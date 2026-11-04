@@ -24,6 +24,7 @@ import numpy as np
 
 DECIMALS = 4
 INFINITY = "∞"
+MAX_CUT_LABELS = 6
 WEIGHT = "weight"
 
 STRENGTH_NOTE = "Edge values are used as connection strengths (blank = 1)."
@@ -266,6 +267,43 @@ def degree_sequence(graph):
     return ", ".join(str(degree) for degree in sorted((degree for _, degree in graph.degree), reverse=True))
 
 
+def cut_text(size, labels):
+    """'2 (cut a, b)', listing at most MAX_CUT_LABELS of the cut's members."""
+    shown = sorted(labels)[:MAX_CUT_LABELS]
+    more = ", …" if len(labels) > MAX_CUT_LABELS else ""
+    return f"{size} (cut {', '.join(shown)}{more})"
+
+
+def edge_connectivity(graph, connected):
+    """Fewest edges whose removal disconnects the graph, with one such set."""
+    if graph.number_of_nodes() < 2:
+        return "— (one node)"
+
+    if not connected:
+        return "0 (already disconnected)"
+
+    order = {vertex: index for index, vertex in enumerate(graph.nodes)}
+    cut = [tuple(sorted(edge, key=order.get)) for edge in nx.minimum_edge_cut(graph)]
+    return cut_text(len(cut), [edge_label(graph, edge) for edge in cut])
+
+
+def node_connectivity(graph, connected):
+    """Fewest nodes whose removal disconnects the graph, with one such set."""
+    nodes = graph.number_of_nodes()
+
+    if nodes < 2:
+        return "— (one node)"
+
+    if not connected:
+        return "0 (already disconnected)"
+
+    if graph.number_of_edges() == nodes * (nodes - 1) // 2:
+        return "None (complete graph)"
+
+    cut = nx.minimum_node_cut(graph)
+    return cut_text(len(cut), [vertex_label(graph, vertex) for vertex in cut])
+
+
 def path_extent(graph, measure, connected):
     """Diameter or radius: infinite when disconnected, undefined with negative distances."""
     if not connected:
@@ -289,6 +327,8 @@ def graph_properties(graph):
 
     properties = [
         ("Connected", connected),
+        ("Edge connectivity", edge_connectivity(graph, connected)),
+        ("Node connectivity", node_connectivity(graph, connected)),
         ("Degree sequence", degree_sequence(graph)),
     ]
 

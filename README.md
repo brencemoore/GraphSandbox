@@ -66,7 +66,7 @@ Click **Analyze** to open the analysis panel. Results update as you edit the gra
 
 | Tab | Contents |
 |---|---|
-| **Metrics** | Node, edge and component counts, density, connectivity, degree sequence, diameter, radius, girth, and whether the graph is a tree, bipartite or planar, plus clustering, transitivity and algebraic connectivity |
+| **Metrics** | Node, edge and component counts, density, connectivity, the fewest edges and fewest nodes whose removal disconnects the graph (with an example cut), degree sequence, diameter, radius, girth, and whether the graph is a tree, bipartite or planar, plus clustering, transitivity and algebraic connectivity |
 | **Centrality** | Degree, betweenness, closeness, harmonic, eigenvector and PageRank, shown as bars |
 | **Matrices** | Adjacency, degree, Laplacian, normalized Laplacian, incidence, oriented incidence and distance matrices |
 | **Spectral** | Eigenvalues and unit eigenvectors of the adjacency, Laplacian and normalized Laplacian matrices |
@@ -77,6 +77,18 @@ How edge values are used depends on the measure:
 - **As distances:** distances, betweenness, closeness, harmonic centrality, diameter and radius.
 
 A note under each result says which applies.
+
+### Comparing Two Graphs
+
+Click **Compare** (on phones: the File menu → **Second workspace**) to open a second workspace beside the first.
+
+- **Active workspace:** click inside a workspace or on its tab in the bar above to make it active; its tab is highlighted. New graph, Open, Save, undo/redo and keyboard shortcuts act on the active workspace. The tools on the left apply to both.
+- **Isomorphism:** while two workspaces are open, **Isomorphism** replaces Analyze. It checks whether the two graphs are isomorphic.
+  - If they are, it shows how the nodes map onto each other. When both graphs use the same names, the names get subscripts (A₁ ↦ C₂) to tell them apart.
+  - If they are not, it gives a reason, such as different degree sequences, and a table of the invariants it compared.
+  - Only structure counts: names and edge values are ignored.
+- **Closing:** the × on a workspace's tab closes it and deletes its graph, after asking.
+- **Phones:** the two workspaces become tabs; only the active one is shown.
 
 ### Saving and Opening
 
@@ -131,10 +143,12 @@ The layout works down to small phones such as the iPhone SE.
 index.html               Page layout
 css/style.css            Custom styles (theme colors, tool rail, canvas grid, analysis panel)
 js/main.js               Starts the app and connects the controls
-js/graph/                Canvas, tools, selection, naming, undo/redo, inspector
+js/graph/                One workspace: canvas, tools, selection, naming, undo/redo, inspector
+js/workspaces.js         One or two workspaces, and which is active
 js/analysis/             Python engine, analysis panel, result views
 js/*.js                  Settings, save/open dialogs, confirmations, notifications
 py/graph_math.py         Analysis functions
+py/graph_compare.py      Isomorphism check
 py/graph_io.py           File import and export
 scripts/serve.py         Local development server
 ```

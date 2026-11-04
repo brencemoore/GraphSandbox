@@ -3,10 +3,6 @@
 
 const EdgePreview = (() => {
 
-    let overlay = null;
-    let line = null;
-
-
     // Point on a node's border in the direction of another point, in rendered (screen) coordinates.
     function borderPoint(node, toward) {
         const center = node.renderedPosition();
@@ -22,30 +18,33 @@ const EdgePreview = (() => {
     }
 
 
-    function draw(source, cursor, target) {
-        const end = target ? borderPoint(target, source.renderedPosition()) : cursor;
-        const start = borderPoint(source, end);
+    // overlay is the workspace's <svg> with one <line>.
+    function create(overlay) {
+        const line = overlay.querySelector("line");
 
-        line.setAttribute("x1", start.x);
-        line.setAttribute("y1", start.y);
-        line.setAttribute("x2", end.x);
-        line.setAttribute("y2", end.y);
 
-        overlay.classList.remove("d-none");
+        function draw(source, cursor, target) {
+            const end = target ? borderPoint(target, source.renderedPosition()) : cursor;
+            const start = borderPoint(source, end);
+
+            line.setAttribute("x1", start.x);
+            line.setAttribute("y1", start.y);
+            line.setAttribute("x2", end.x);
+            line.setAttribute("y2", end.y);
+
+            overlay.classList.remove("d-none");
+        }
+
+
+        function hide() {
+            overlay.classList.add("d-none");
+        }
+
+
+        return { draw, hide };
     }
 
 
-    function hide() {
-        overlay.classList.add("d-none");
-    }
-
-
-    function init() {
-        overlay = document.getElementById("edgePreview");
-        line = overlay.querySelector("line");
-    }
-
-
-    return { init, draw, hide };
+    return { create };
 
 })();
