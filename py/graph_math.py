@@ -23,7 +23,7 @@ from functools import partial
 import networkx as nx
 import numpy as np
 
-from graph_traversals import route_verdicts, routes_result
+from graph_traversals import routes_result
 
 
 DECIMALS = 4
@@ -346,7 +346,6 @@ def graph_properties(graph):
         ("Tree", nx.is_tree(graph)),
         ("Bipartite", nx.is_bipartite(graph)),
         ("Planar", nx.is_planar(graph)),
-        *route_verdicts(graph, partial(vertex_label, graph)),
         ("Average clustering", nx.average_clustering(graph)),
         ("Transitivity", nx.transitivity(graph)),
         ("Algebraic connectivity", algebraic_connectivity(graph)),

@@ -1,4 +1,4 @@
-"""Euler and Hamilton routes, shown as Yes/No in the Metrics tab and explained in the Routes tab.
+"""Euler and Hamilton routes for the Routes tab: whether each exists, with an example or the reason.
 
 Each check takes the NetworkX graph and a function that gives a vertex's label, and returns
 {"verdict", "route", "reason"}: the verdict is "Yes", "No", "Unknown" or "—" (does not apply),
@@ -267,11 +267,6 @@ ROUTES = [
     ("Hamilton path", "Visits every node exactly once.", hamilton_path),
     ("Hamilton cycle", "Visits every node exactly once and returns to the start.", hamilton_cycle),
 ]
-
-
-def route_verdicts(graph, label):
-    """[name, verdict] for each route, for the Metrics list."""
-    return [(name, check(graph, label)["verdict"]) for name, _, check in ROUTES]
 
 
 def routes_result(graph, label):
