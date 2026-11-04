@@ -34,3 +34,7 @@ A browser sandbox for creating and analyzing simple graphs.
 ## Prompts
 
 - After finishing a job make sure to give the user any instructions needed to test and run the code/project themselves.
+
+## Maintenance
+
+- If significant functionality was changed, created, or removed from the website, update the `Help & about` area on the website and update the `README.md` file to reflect current functionality.
