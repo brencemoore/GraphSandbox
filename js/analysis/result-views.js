@@ -107,6 +107,43 @@ const ResultViews = (() => {
     }
 
 
+    // Routes: one card per route with its verdict, an example route and the reasoning.
+
+    const VERDICT_BADGES = {
+        "Yes": "bg-accent",
+        "No": "text-bg-secondary",
+        "Unknown": "text-bg-warning",
+        "—": "text-bg-secondary",
+    };
+
+
+    function routeCard(route) {
+        const card = createElement("div", "border rounded-3 p-3");
+
+        const header = createElement("div", "d-flex justify-content-between align-items-center gap-3");
+        header.append(
+            createElement("span", "fw-semibold", route.name),
+            createElement("span", `badge rounded-pill ${VERDICT_BADGES[route.verdict]}`, route.verdict),
+        );
+
+        card.append(header, createElement("div", "small text-body-secondary mb-2", route.definition));
+
+        if (route.route) {
+            card.append(createElement("div", "font-monospace small bg-body-tertiary rounded-2 px-2 py-1 mb-2 text-break", route.route.join(" → ")));
+        }
+
+        card.append(createElement("div", "small", route.reason));
+        return card;
+    }
+
+
+    function routes(result) {
+        const list = createElement("div", "d-flex flex-column gap-3");
+        result.rows.forEach(route => list.append(routeCard(route)));
+        return [heading(result), list];
+    }
+
+
     // Tables: matrices, eigenvalues and eigenvectors. The first value in each row is its label.
 
     function tableHeader(columns) {
@@ -159,7 +196,7 @@ const ResultViews = (() => {
     }
 
 
-    const RENDERERS = { properties, scores, table, tables };
+    const RENDERERS = { properties, routes, scores, table, tables };
 
 
     // Returns the elements to place in a result container.

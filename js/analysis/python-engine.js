@@ -4,7 +4,7 @@
 const PythonEngine = (() => {
 
     const PACKAGES = ["numpy", "scipy", "networkx"];
-    const MODULES = ["graph_math", "graph_compare", "graph_io"];
+    const MODULES = ["graph_math", "graph_traversals", "graph_compare", "graph_io"];
 
     let enginePromise = null;
     let ready = false;

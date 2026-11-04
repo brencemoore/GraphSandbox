@@ -7,6 +7,7 @@ Every analysis takes the NetworkX graph and returns one of these result kinds:
 - tables:     {"kind", "title", "tables": [table, ...]}
 - scores:     {"kind", "title", "rows": [[node label, score]]}
 - properties: {"kind", "title", "highlights": [[name, value]], "rows": [[name, value]]}
+- routes:     {"kind", "title", "rows": [{"name", "definition", "verdict", "route", "reason"}]}
 
 Any result may also carry a "note" shown under its title.
 
@@ -17,9 +18,12 @@ diameter, radius) treat them as lengths.
 """
 
 import json
+from functools import partial
 
 import networkx as nx
 import numpy as np
+
+from graph_traversals import routes_result
 
 
 DECIMALS = 4
@@ -356,10 +360,15 @@ def graph_properties(graph):
     return with_note(result, graph, PROPERTIES_NOTE)
 
 
+def graph_routes(graph):
+    return routes_result(graph, partial(vertex_label, graph))
+
+
 # Entry Point
 
 ANALYSES = {
     "graph_properties": graph_properties,
+    "graph_routes": graph_routes,
     "degree_centrality": degree_centrality,
     "betweenness_centrality": betweenness_centrality,
     "closeness_centrality": closeness_centrality,
