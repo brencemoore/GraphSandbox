@@ -4,6 +4,10 @@
 
 const IsomorphismDialog = (() => {
 
+    const UNCHECKED_CYCLES_NOTE = "Not checked: the number of 4-cycles, 5-cycles, or longer cycles. "
+        + "Counts like these can reveal a structural difference even when the invariants above, "
+        + "including the adjacency eigenvalues, all match.";
+
     let modal = null;
     let resultContainer = null;
 
@@ -116,10 +120,14 @@ const IsomorphismDialog = (() => {
             sections.push(heading("Node mapping"), mappingTable(outcome.mapping));
         }
 
+        sections.push(heading("Invariants"), checksTable(outcome.checks));
+
+        if (!outcome.isomorphic) {
+            sections.push(createElement("p", "form-text mb-0 mt-3", UNCHECKED_CYCLES_NOTE));
+        }
+
         sections.push(
-            heading("Invariants"),
-            checksTable(outcome.checks),
-            createElement("p", "form-text mb-0 mt-3", "Only the structure is compared: node names, edge names and edge values are ignored."),
+            createElement("p", "form-text mb-0 mt-2", "Only the structure is compared: node names, edge names and edge values are ignored."),
         );
 
         resultContainer.replaceChildren(...sections);
