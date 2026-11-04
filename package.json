@@ -16,6 +16,7 @@
   "main": "js/main.js",
   "scripts": {
     "start": "python scripts/serve.py",
+    "stamp": "node scripts/stamp-version.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "copy-dependencies": "node scripts/copy-dependencies.js",
     "update-dependencies": "npm update && npm run copy-dependencies",

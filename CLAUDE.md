@@ -7,6 +7,7 @@ A browser sandbox for creating and analyzing simple graphs.
 - Work only on the `claude` branch. Never commit to or check out `main`.
 - Commit locally at the end of every prompt that changes files.
 - Never push.
+- Before merging into `main`, run `npm run stamp` and commit the result, so browsers fetch the new JS and CSS together (`scripts/stamp-version.js`).
 
 ## Dependencies
 
