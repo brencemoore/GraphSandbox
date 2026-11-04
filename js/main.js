@@ -3,6 +3,7 @@
 // keyboard shortcuts act on the active workspace; the tool rail applies to every workspace.
 
 const PYTHON_STATUS = {
+    idle: { color: "bg-secondary", text: "Python loads on first use" },
     loading: { color: "bg-warning", text: "Loading Python…" },
     ready: { color: "bg-success", text: "Python ready" },
     failed: { color: "bg-danger", text: "Python failed to load" },
@@ -230,13 +231,32 @@ function setPythonStatus(state) {
 }
 
 
-// Starts loading in the background so the first analysis runs quickly.
+let pythonRequested = false;
+
+
 function loadPython() {
+    if (pythonRequested) {
+        return;
+    }
+
+    pythonRequested = true;
     setPythonStatus("loading");
 
     PythonEngine.load()
         .then(() => setPythonStatus("ready"))
         .catch(() => setPythonStatus(location.protocol === "file:" ? "needsServer" : "failed"));
+}
+
+
+// Python and its packages are about 20 MB and keep the page busy while they start, so they load
+// on the first click, tap or key press rather than with the page. People usually draw before
+// they analyze, so it is normally ready in time; anything that needs it sooner waits for it.
+function loadPythonOnFirstInteraction() {
+    setPythonStatus("idle");
+
+    ["pointerdown", "keydown"].forEach(type => {
+        document.addEventListener(type, loadPython, { once: true, capture: true });
+    });
 }
 
 
@@ -277,7 +297,7 @@ function initApp() {
     selectTool("select");
     onWorkspacesChange();
     warnBeforeLeaving();
-    loadPython();
+    loadPythonOnFirstInteraction();
 }
 
 

@@ -5,7 +5,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>GraphSandbox</title>
+    <!-- Search and Sharing -->
+    <title>GraphSandbox – Draw and Analyze Graphs Online</title>
+
+    <meta
+        name="description"
+        content="Draw graphs in your browser and analyze them instantly: adjacency and Laplacian matrices, eigenvalues, centrality, connectivity and isomorphism. Free.">
+
+    <link
+        rel="canonical"
+        href="https://brencemoore.github.io/GraphSandbox/">
+
+    <meta
+        name="theme-color"
+        content="#12806a">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="GraphSandbox">
+    <meta property="og:title" content="GraphSandbox – Draw and Analyze Graphs Online">
+    <meta property="og:description" content="Draw graphs in your browser and analyze them instantly: matrices, eigenvalues, centrality, connectivity and isomorphism.">
+    <meta property="og:url" content="https://brencemoore.github.io/GraphSandbox/">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="GraphSandbox – Draw and Analyze Graphs Online">
+    <meta name="twitter:description" content="Draw graphs in your browser and analyze them instantly: matrices, eigenvalues, centrality, connectivity and isomorphism.">
+
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            "name": "GraphSandbox",
+            "url": "https://brencemoore.github.io/GraphSandbox/",
+            "description": "A free browser app for drawing simple graphs and analyzing them: adjacency, Laplacian and incidence matrices, eigenvalues and eigenvectors, centrality, connectivity and isomorphism.",
+            "applicationCategory": "EducationalApplication",
+            "operatingSystem": "Any (web browser)",
+            "browserRequirements": "Requires JavaScript and WebAssembly",
+            "isAccessibleForFree": true,
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+            },
+            "author": {
+                "@type": "Person",
+                "name": "Brence Moore"
+            },
+            "featureList": [
+                "Draw nodes and edges with the mouse or touch",
+                "Adjacency, degree, Laplacian, incidence and distance matrices",
+                "Eigenvalues and eigenvectors",
+                "Degree, betweenness, closeness, eigenvector and PageRank centrality",
+                "Edge and node connectivity",
+                "Isomorphism check between two graphs",
+                "Save as PNG, JPG, JSON, GraphML, GML or CSV"
+            ]
+        }
+    </script>
 
     <link
         rel="icon"
@@ -22,22 +76,26 @@
     <!-- Header -->
     <header class="d-flex align-items-center gap-2 gap-md-4 px-3 px-md-4 py-2 py-md-3 border-bottom bg-body flex-shrink-0">
 
-        <a class="d-flex align-items-center gap-2 fs-4 fw-semibold text-body text-decoration-none" href="#">
-            <i class="bi bi-share-fill text-accent"></i>
+        <!-- The site name is the page heading; on phones only the logo shows, so the name stays readable by screen readers and search engines -->
+        <h1 class="d-flex align-items-center gap-2 fs-4 fw-semibold m-0">
+            <i
+                class="bi bi-share-fill text-accent"
+                aria-hidden="true"></i>
             <span class="d-none d-sm-inline">Graph<span class="text-accent">Sandbox</span></span>
-        </a>
+            <span class="visually-hidden d-sm-none">GraphSandbox</span>
+        </h1>
 
         <span
             class="d-flex align-items-center gap-2 small text-body-secondary"
             id="pythonStatus">
             <span
-                class="p-1 rounded-circle d-inline-block bg-warning"
+                class="p-1 rounded-circle d-inline-block bg-secondary"
                 id="pythonStatusDot">
             </span>
             <span
                 class="d-none d-md-inline"
                 id="pythonStatusText">
-                Loading Python…
+                Python loads on first use
             </span>
         </span>
 
@@ -1168,32 +1226,33 @@
     </div>
 
 
-    <script src="js/bootstrap.bundle.min.js"></script>
-    <script src="js/cytoscape.min.js"></script>
-    <script src="js/pyodide/pyodide.js"></script>
+    <!-- Deferred: scripts run in order after the page is parsed, so they never delay the first paint -->
+    <script defer src="js/bootstrap.bundle.min.js"></script>
+    <script defer src="js/cytoscape.min.js"></script>
+    <script defer src="js/pyodide/pyodide.js"></script>
 
-    <script src="js/settings.js"></script>
-    <script src="js/graph/naming.js"></script>
-    <script src="js/graph/marquee.js"></script>
-    <script src="js/graph/edge-preview.js"></script>
-    <script src="js/graph/canvas.js"></script>
-    <script src="js/graph/history.js"></script>
-    <script src="js/graph/tools.js"></script>
-    <script src="js/graph/inspector.js"></script>
-    <script src="js/graph/summary.js"></script>
-    <script src="js/graph/workspace.js"></script>
-    <script src="js/analysis/python-engine.js"></script>
-    <script src="js/analysis/result-views.js"></script>
-    <script src="js/analysis/analysis-panel.js"></script>
-    <script src="js/graph/graph-data.js"></script>
-    <script src="js/notify.js"></script>
-    <script src="js/confirm-dialog.js"></script>
-    <script src="js/settings-dialog.js"></script>
-    <script src="js/save-dialog.js"></script>
-    <script src="js/open-graph.js"></script>
-    <script src="js/workspaces.js"></script>
-    <script src="js/isomorphism-dialog.js"></script>
-    <script src="js/main.js"></script>
+    <script defer src="js/settings.js"></script>
+    <script defer src="js/graph/naming.js"></script>
+    <script defer src="js/graph/marquee.js"></script>
+    <script defer src="js/graph/edge-preview.js"></script>
+    <script defer src="js/graph/canvas.js"></script>
+    <script defer src="js/graph/history.js"></script>
+    <script defer src="js/graph/tools.js"></script>
+    <script defer src="js/graph/inspector.js"></script>
+    <script defer src="js/graph/summary.js"></script>
+    <script defer src="js/graph/workspace.js"></script>
+    <script defer src="js/analysis/python-engine.js"></script>
+    <script defer src="js/analysis/result-views.js"></script>
+    <script defer src="js/analysis/analysis-panel.js"></script>
+    <script defer src="js/graph/graph-data.js"></script>
+    <script defer src="js/notify.js"></script>
+    <script defer src="js/confirm-dialog.js"></script>
+    <script defer src="js/settings-dialog.js"></script>
+    <script defer src="js/save-dialog.js"></script>
+    <script defer src="js/open-graph.js"></script>
+    <script defer src="js/workspaces.js"></script>
+    <script defer src="js/isomorphism-dialog.js"></script>
+    <script defer src="js/main.js"></script>
 
 </body>
 
