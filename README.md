@@ -25,6 +25,8 @@ npm start
 
 Then open http://localhost:8000. Press Ctrl+C in the terminal to stop the server.
 
+Before deploying, run `npm run stamp`. It gives the app's scripts and stylesheet in `index.html` a new `?v=` version, so visitors' browsers download all the changed files together instead of mixing new ones with older cached copies.
+
 - **Serve it, don't double-click it:** opening `index.html` directly won't work, because the Python engine can't load from a file. `npm start` runs a small server (`scripts/serve.py`) that serves the files correctly.
 - **Internet needed for analysis:** the Python packages (NumPy, SciPy, NetworkX) are downloaded from Pyodide's CDN. To keep the page fast, Python starts loading on your first click, tap or key press. The status dot in the header turns green when it's ready, usually within 10–15 seconds, and you can keep drawing meanwhile.
 
@@ -161,6 +163,7 @@ py/graph_traversals.py   Euler and Hamilton routes
 py/graph_compare.py      Isomorphism check
 py/graph_io.py           File import and export
 scripts/serve.py         Local development server
+scripts/stamp-version.js Versions the app's file links before a deploy
 ```
 
 Much of the code in this project was generated with Claude Opus 5.5, Anthropic's AI model, through Claude Code, and then reviewed and directed by the author.
