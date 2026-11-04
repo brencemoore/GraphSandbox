@@ -135,7 +135,7 @@ The layout works down to small phones such as the iPhone SE.
 
 - **Layout:** the page fits the screen without scrolling, the tools move to a bar at the bottom, and the file actions and help are grouped in a menu.
 - **Panels and dialogs:** the analysis panel and dialogs open full screen.
-- **Touch:** double-tap to add a node, and pinch to zoom in any tool except Select.
+- **Touch:** double-tap to add a node, drag one finger on empty canvas in Select to draw a selection box, and pinch to zoom in any tool except Select.
 
 
 ## How It's Built

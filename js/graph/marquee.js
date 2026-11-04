@@ -1,6 +1,7 @@
 // Marquee
 // Makes box selection select everything the box touches: every node whose shape overlaps it
-// and every edge whose line crosses it, not only elements lying wholly inside it.
+// and every edge whose line crosses it, not only elements lying wholly inside it. On touch screens,
+// where Cytoscape needs three fingers to box-select, a one-finger drag draws the box instead.
 
 const Marquee = (() => {
 
@@ -61,9 +62,91 @@ const Marquee = (() => {
     }
 
 
+    // Touch Box
+    // Cytoscape box-selects by touch only with three fingers, so a one-finger drag on empty canvas
+    // in the Select tool draws this box instead. overlay is the workspace's <svg> with one <rect>.
+
+    const MIN_TOUCH_BOX = 6;
+
+
+    function createTouchBox(cy, overlay, selectTouched) {
+        const rect = overlay.querySelector("rect");
+        let drag = null;
+
+
+        function draw(box) {
+            rect.setAttribute("x", box.x1);
+            rect.setAttribute("y", box.y1);
+            rect.setAttribute("width", box.x2 - box.x1);
+            rect.setAttribute("height", box.y2 - box.y1);
+            overlay.classList.remove("d-none");
+        }
+
+
+        function cancel() {
+            drag = null;
+            overlay.classList.add("d-none");
+        }
+
+
+        // Box selection is only enabled in the Select tool, and not while a selected edge is dragged.
+        function onTouchStart(event) {
+            const singleTouch = event.originalEvent.touches.length === 1;
+
+            if (event.target !== cy || !cy.boxSelectionEnabled() || !singleTouch) {
+                cancel();
+                return;
+            }
+
+            drag = {
+                start: { ...event.position },
+                end: { ...event.position },
+                renderedStart: { ...event.renderedPosition },
+                drawn: false,
+            };
+        }
+
+
+        function onTouchMove(event) {
+            if (!drag) {
+                return;
+            }
+
+            if (event.originalEvent.touches.length > 1) {
+                cancel();
+                return;
+            }
+
+            const rendered = boxBetween(drag.renderedStart, event.renderedPosition);
+            drag.end = { ...event.position };
+            drag.drawn = drag.drawn || Math.max(rendered.x2 - rendered.x1, rendered.y2 - rendered.y1) >= MIN_TOUCH_BOX;
+
+            if (drag.drawn) {
+                draw(rendered);
+            }
+        }
+
+
+        // Like the mouse box without Shift, the new box replaces the selection.
+        function onTouchEnd() {
+            if (drag?.drawn) {
+                cy.elements().unselect();
+                selectTouched(boxBetween(drag.start, drag.end));
+            }
+
+            cancel();
+        }
+
+
+        cy.on("touchstart", onTouchStart);
+        cy.on("touchmove", onTouchMove);
+        cy.on("touchend", onTouchEnd);
+    }
+
+
     // Instance
 
-    function create(cy) {
+    function create(cy, touchOverlay) {
         let origin = null;
 
 
@@ -96,6 +179,7 @@ const Marquee = (() => {
 
         cy.on("tapstart", onPress);
         cy.on("boxend", onBoxEnd);
+        createTouchBox(cy, touchOverlay, selectTouched);
     }
 
 
