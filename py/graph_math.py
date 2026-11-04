@@ -406,6 +406,10 @@ def run_analysis(name, graph_json):
     """Runs one analysis on a graph sent as JSON and returns the result as JSON."""
     graph = build_graph(json.loads(graph_json))
 
+    # The page asked for an analysis this file doesn't have, so one of them is an older copy.
+    if name not in ANALYSES:
+        return json.dumps({"error": "This page is out of date. Reload it to get the latest version."})
+
     if graph.number_of_nodes() == 0:
         return json.dumps({"error": "Add at least one node to analyze the graph."})
 
