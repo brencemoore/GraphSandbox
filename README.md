@@ -135,7 +135,7 @@ Settings are saved in your browser and come back when you reopen the page.
 - **Appearance:** labels, the node and edge counts over the canvas, the dot grid, and dark mode.
 - **Fiedler vector:** color the nodes by the Fiedler vector (the Laplacian eigenvector for the second-smallest eigenvalue λ₂), and show its values in the canvas's top-right corner.
   - Positive entries are red and negative entries blue. Entries near 0 are almost white, and larger entries are darker.
-  - The list runs from the largest positive entry to the largest negative one, each with its node's color; hover a row to highlight its node.
+  - The list follows the node order, like the Spectral tab's matrices, with each node's color; hover a row to highlight its node. Long lists scroll.
   - The signs split the graph into two well-connected halves, which is the idea behind spectral clustering.
 
 ### Phones and Tablets

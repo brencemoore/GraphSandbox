@@ -52,7 +52,7 @@ const FiedlerView = (() => {
 
     // Hovering a row highlights its node, so the list and the canvas can be matched up.
     function valueRow(cy, [id, label, value], color) {
-        const row = createElement("li", "d-flex align-items-center gap-2 py-1");
+        const row = createElement("li", "d-flex align-items-center gap-2");
 
         const swatch = createElement("span", "d-inline-block p-2 rounded-circle border");
         swatch.style.backgroundColor = color.fill;
@@ -94,18 +94,16 @@ const FiedlerView = (() => {
 
         function showMessage(text) {
             summary.textContent = text;
-            note.textContent = "";
+            note.replaceChildren();
             list.replaceChildren();
         }
 
 
-        // Rows run from the largest positive entry to the largest negative one.
+        // Rows follow the node order, like the matrices in the Spectral tab.
         function showValues(colors) {
             summary.textContent = `λ₂ = ${result.eigenvalue}`;
-            note.textContent = result.note;
-
-            const rows = [...result.values].sort((a, b) => b[2] - a[2]);
-            list.replaceChildren(...rows.map(row => valueRow(cy, row, colors.get(row[0]))));
+            note.replaceChildren(...result.notes.map(text => createElement("div", "", text)));
+            list.replaceChildren(...result.values.map(row => valueRow(cy, row, colors.get(row[0]))));
         }
 
 

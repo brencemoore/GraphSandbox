@@ -8,7 +8,7 @@ Every analysis takes the NetworkX graph and returns one of these result kinds:
 - scores:     {"kind", "title", "rows": [[node label, score]]}
 - properties: {"kind", "title", "highlights": [[name, value]], "rows": [[name, value]]}
 - routes:     {"kind", "title", "rows": [{"name", "definition", "verdict", "route", "reason"}]}
-- fiedler:    {"kind", "eigenvalue", "values": [[node id, label, value]]} for coloring the canvas
+- fiedler:    {"kind", "eigenvalue", "notes": [str], "values": [[node id, label, value]]} for the canvas
 
 Any result may also carry a "note" shown under its title.
 
@@ -383,12 +383,12 @@ def fiedler_notes(graph, eigenvalues):
     notes = []
 
     if not nx.is_connected(graph):
-        notes.append("Disconnected, so λ₂ = 0.")
+        notes.append("Disconnected: λ₂ = 0")
     elif len(eigenvalues) > 2 and eigenvalues[2] - eigenvalues[1] < REPEATED_EIGENVALUE_GAP:
-        notes.append("λ₂ repeats, so the vector isn't unique.")
+        notes.append("λ₂ repeats: not unique")
 
     if is_weighted(graph):
-        notes.append("Edge values used as weights.")
+        notes.append("Weighted by edge values")
 
     return notes
 
@@ -417,7 +417,7 @@ def fiedler_vector(graph):
             [vertex, vertex_label(graph, vertex), format_value(value)]
             for vertex, value in zip(vertices(graph), values)
         ],
-        "note": " ".join(fiedler_notes(graph, eigenvalues)),
+        "notes": fiedler_notes(graph, eigenvalues),
     }
 
 
