@@ -1,6 +1,6 @@
 // Workspace
 // One graph canvas with everything attached to it: undo history, tools, inspector, highlight box,
-// edge preview, counts and zoom controls. Built from the #workspaceTemplate markup.
+// edge preview, Fiedler vector view, counts and zoom controls. Built from the #workspaceTemplate markup.
 
 const Workspace = (() => {
 
@@ -41,6 +41,8 @@ const Workspace = (() => {
             part(root, "empty"),
         );
         workspace.header = part(root, "header");
+
+        workspace.fiedler = FiedlerView.create(cy, canvas, part(root, "fiedler"));
 
         Inspector.create(cy, workspace.history, part(root, "inspector"));
         HighlightBox.create(cy, part(root, "touch-highlight"));

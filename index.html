@@ -850,6 +850,42 @@
                         <input
                             class="form-check-input"
                             type="checkbox"
+                            id="fiedlerColoringSetting"
+                            data-setting="fiedlerColoring">
+
+                        <label
+                            class="form-check-label"
+                            for="fiedlerColoringSetting">
+                            Color nodes by the Fiedler vector
+                        </label>
+
+                    </div>
+
+                    <div class="form-check form-switch">
+
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="showFiedlerVectorSetting"
+                            data-setting="showFiedlerVector">
+
+                        <label
+                            class="form-check-label"
+                            for="showFiedlerVectorSetting">
+                            Show the Fiedler vector on the canvas
+                        </label>
+
+                    </div>
+
+                    <div class="form-text mb-2">
+                        The Fiedler vector is the Laplacian eigenvector for λ₂. Positive entries are red, negative blue, and larger entries are darker.
+                    </div>
+
+                    <div class="form-check form-switch">
+
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
                             id="darkModeSetting"
                             data-setting="darkMode">
 
@@ -1129,6 +1165,41 @@
             </div>
 
 
+            <!-- Fiedler Vector: turned on in Settings (js/graph/fiedler-view.js); before the inspector so it stays on top -->
+            <div
+                class="position-absolute top-0 end-0 bottom-50 m-3 m-md-4 d-flex flex-column align-items-end pe-none d-none"
+                data-role="fiedler">
+
+                <div class="card shadow-sm small pe-auto overflow-auto mh-100">
+
+                    <div class="card-body p-2 px-3">
+
+                        <div class="fw-semibold">
+                            Fiedler vector
+                        </div>
+
+                        <div
+                            class="text-body-secondary"
+                            data-role="fiedler-summary">
+                        </div>
+
+                        <div
+                            class="text-body-secondary"
+                            data-role="fiedler-note">
+                        </div>
+
+                        <ul
+                            class="list-unstyled mb-0 mt-1"
+                            data-role="fiedler-values">
+                        </ul>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
             <!-- Workspace Header and Inspector -->
             <div class="position-absolute top-0 start-0 m-3 m-md-4 d-flex flex-column align-items-start gap-3 pe-none">
 
@@ -1310,7 +1381,7 @@
                         <li class="mb-2">
                             <i class="bi bi-gear text-body-secondary me-2"></i>
                             <strong>Settings:</strong>
-                            default names, labels, grid, dark mode and automatic analysis updates.
+                            default names, labels, grid, dark mode, automatic analysis updates, and Fiedler vector coloring with an optional list of its values on the canvas.
                         </li>
                         <li>
                             <i class="bi bi-bar-chart-line text-accent me-2"></i>
@@ -1476,6 +1547,7 @@
     <script defer src="js/graph/history.js?v=202611041844"></script>
     <script defer src="js/graph/tools.js?v=202611041844"></script>
     <script defer src="js/graph/inspector.js?v=202611041844"></script>
+    <script defer src="js/graph/fiedler-view.js?v=0"></script>
     <script defer src="js/graph/summary.js?v=202611041844"></script>
     <script defer src="js/graph/workspace.js?v=202611041844"></script>
     <script defer src="js/analysis/python-engine.js?v=202611041844"></script>

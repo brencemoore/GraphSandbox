@@ -8,6 +8,7 @@ Every analysis takes the NetworkX graph and returns one of these result kinds:
 - scores:     {"kind", "title", "rows": [[node label, score]]}
 - properties: {"kind", "title", "highlights": [[name, value]], "rows": [[name, value]]}
 - routes:     {"kind", "title", "rows": [{"name", "definition", "verdict", "route", "reason"}]}
+- fiedler:    {"kind", "eigenvalue", "values": [[node id, label, value]]} for coloring the canvas
 
 Any result may also carry a "note" shown under its title.
 
@@ -371,6 +372,55 @@ def graph_properties(graph):
     return with_note(result, graph, PROPERTIES_NOTE)
 
 
+# Fiedler Vector
+
+REPEATED_EIGENVALUE_GAP = 1e-8
+SIGN_TIE_TOLERANCE = 1e-9
+
+
+def fiedler_notes(graph, eigenvalues):
+    """Short notes for the canvas panel when the vector isn't the usual unique split."""
+    notes = []
+
+    if not nx.is_connected(graph):
+        notes.append("Disconnected, so λ₂ = 0.")
+    elif len(eigenvalues) > 2 and eigenvalues[2] - eigenvalues[1] < REPEATED_EIGENVALUE_GAP:
+        notes.append("λ₂ repeats, so the vector isn't unique.")
+
+    if is_weighted(graph):
+        notes.append("Edge values used as weights.")
+
+    return notes
+
+
+def orient_by_first_largest(vector):
+    """Flips the vector so its first largest-magnitude entry is positive. Symmetric graphs often
+    have ties, and picking the first keeps the colors from flipping with rounding noise."""
+    magnitudes = np.abs(vector)
+    first_largest = np.argmax(magnitudes >= magnitudes.max() - SIGN_TIE_TOLERANCE)
+    return -vector if vector[first_largest] < 0 else vector
+
+
+def fiedler_vector(graph):
+    """Unit eigenvector of the Laplacian's second-smallest eigenvalue λ₂ (algebraic connectivity).
+    Its signs split the graph in two."""
+    if graph.number_of_nodes() < 2:
+        raise ValueError("The Fiedler vector needs at least 2 nodes.")
+
+    eigenvalues, eigenvectors = eigen_decomposition(laplacian(graph), descending=False)
+    values = orient_by_first_largest(eigenvectors[:, 1])
+
+    return {
+        "kind": "fiedler",
+        "eigenvalue": format_value(eigenvalues[1]),
+        "values": [
+            [vertex, vertex_label(graph, vertex), format_value(value)]
+            for vertex, value in zip(vertices(graph), values)
+        ],
+        "note": " ".join(fiedler_notes(graph, eigenvalues)),
+    }
+
+
 def graph_routes(graph):
     return routes_result(graph, partial(vertex_label, graph))
 
@@ -380,6 +430,7 @@ def graph_routes(graph):
 ANALYSES = {
     "graph_properties": graph_properties,
     "graph_routes": graph_routes,
+    "fiedler_vector": fiedler_vector,
     "degree_centrality": degree_centrality,
     "betweenness_centrality": betweenness_centrality,
     "closeness_centrality": closeness_centrality,

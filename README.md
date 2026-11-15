@@ -133,6 +133,10 @@ Settings are saved in your browser and come back when you reopen the page.
 - **Analysis:** turn automatic updates on or off.
 - **Names:** default names for new nodes and edges: numbers (`1, 2`), letters (`a, b`), capitals (`A, B`), or a prefix of your choice (`v1, v2`, `e1, e2`). Edges can also have no name. Changing a style offers to rename the existing nodes or edges.
 - **Appearance:** labels, the node and edge counts over the canvas, the dot grid, and dark mode.
+- **Fiedler vector:** color the nodes by the Fiedler vector (the Laplacian eigenvector for the second-smallest eigenvalue λ₂), and show its values in the canvas's top-right corner.
+  - Positive entries are red and negative entries blue. Entries near 0 are almost white, and larger entries are darker.
+  - The list runs from the largest positive entry to the largest negative one, each with its node's color; hover a row to highlight its node.
+  - The signs split the graph into two well-connected halves, which is the idea behind spectral clustering.
 
 ### Phones and Tablets
 
@@ -154,7 +158,7 @@ The layout works down to small phones such as the iPhone SE.
 index.html               Page layout
 css/style.css            Custom styles (theme colors, tool rail, canvas grid, analysis panel)
 js/main.js               Starts the app and connects the controls
-js/graph/                One workspace: canvas, tools, selection, naming, undo/redo, inspector
+js/graph/                One workspace: canvas, tools, selection, naming, undo/redo, inspector, Fiedler view
 js/workspaces.js         One or two workspaces, and which is active
 js/analysis/             Python engine, analysis panel, result views
 js/*.js                  Settings, save/open dialogs, confirmations, notifications

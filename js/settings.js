@@ -14,6 +14,8 @@ const AppSettings = (() => {
         showLabels: true,
         showCounts: true,
         showGrid: true,
+        fiedlerColoring: false,
+        showFiedlerVector: false,
         darkMode: false,
     };
 

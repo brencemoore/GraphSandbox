@@ -205,6 +205,16 @@ function setDarkMode(enabled) {
 }
 
 
+// The Fiedler vector is calculated in Python, so turning either view on starts loading it.
+function showFiedler(enabled, action) {
+    if (enabled) {
+        loadPython();
+    }
+
+    Workspaces.all().forEach(workspace => action(workspace.fiedler));
+}
+
+
 // Naming settings need no handler here: tools read them when naming, and the
 // settings dialog renames existing nodes and edges when they change.
 const SETTING_HANDLERS = {
@@ -212,6 +222,8 @@ const SETTING_HANDLERS = {
     showLabels: value => forEachCanvas(canvas => canvas.setLabelsVisible(value)),
     showCounts: updateWorkspaceHeaders,
     showGrid: value => forEachCanvas(canvas => canvas.setGridVisible(value)),
+    fiedlerColoring: value => showFiedler(value, fiedler => fiedler.setColoring(value)),
+    showFiedlerVector: value => showFiedler(value, fiedler => fiedler.setPanelVisible(value)),
     darkMode: setDarkMode,
 };
 
@@ -251,7 +263,12 @@ function loadPython() {
 // Python and its packages are about 20 MB and keep the page busy while they start, so they load
 // on the first click, tap or key press rather than with the page. People usually draw before
 // they analyze, so it is normally ready in time; anything that needs it sooner waits for it.
+// A saved setting (Fiedler vector) may already have started it.
 function loadPythonOnFirstInteraction() {
+    if (pythonRequested) {
+        return;
+    }
+
     setPythonStatus("idle");
 
     ["pointerdown", "keydown"].forEach(type => {

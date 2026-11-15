@@ -84,6 +84,20 @@ const GraphCanvas = (() => {
     }
 
 
+    // Colored nodes (e.g. by the Fiedler vector) keep their fill when selected; hover still overrides it.
+    function colorStyles() {
+        return [
+            {
+                selector: "node.colored",
+                style: {
+                    "background-color": node => node.scratch("color").fill,
+                    "color": node => node.scratch("color").text,
+                },
+            },
+        ];
+    }
+
+
     // Hovered and dragged nodes get a thick accent border and a dashed halo.
     function hoverStyles(colors) {
         return [
@@ -130,7 +144,7 @@ const GraphCanvas = (() => {
 
     function buildStyle(labelsVisible) {
         const colors = themeColors();
-        return [...baseStyles(colors, labelsVisible), ...hoverStyles(colors), ...connectStyles(colors)];
+        return [...baseStyles(colors, labelsVisible), ...colorStyles(), ...hoverStyles(colors), ...connectStyles(colors)];
     }
 
 
@@ -158,6 +172,24 @@ const GraphCanvas = (() => {
         function setLabelsVisible(visible) {
             labelsVisible = visible;
             refreshStyle();
+        }
+
+
+        // colors maps node ids to { fill, text }; nodes left out, or null for all, get the normal style.
+        function setNodeColors(colors) {
+            cy.batch(() => {
+                cy.nodes().forEach(node => {
+                    const color = colors?.get(node.id());
+
+                    if (color) {
+                        node.scratch("color", color);
+                    }
+
+                    node.toggleClass("colored", Boolean(color));
+                });
+
+                cy.nodes(".colored").updateStyle();
+            });
         }
 
 
@@ -250,6 +282,7 @@ const GraphCanvas = (() => {
             cy,
             refreshStyle,
             setLabelsVisible,
+            setNodeColors,
             setGridVisible,
             zoomIn,
             zoomOut,
