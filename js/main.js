@@ -215,13 +215,32 @@ function showFiedler(enabled, action) {
 }
 
 
+// Snapping only applies while the grid is shown. Turning it on moves the existing nodes onto the grid;
+// turning it off leaves every node where it is.
+function updateGridSnapping() {
+    const enabled = AppSettings.get("showGrid") && AppSettings.get("snapToGrid");
+
+    Workspaces.all().forEach(workspace => {
+        workspace.canvas.setSnapToGrid(enabled);
+
+        if (enabled) {
+            workspace.tools.snapAllToGrid();
+        }
+    });
+}
+
+
 // Naming settings need no handler here: tools read them when naming, and the
 // settings dialog renames existing nodes and edges when they change.
 const SETTING_HANDLERS = {
     autoUpdate: value => AnalysisPanel.setAutoUpdate(value),
     showLabels: value => forEachCanvas(canvas => canvas.setLabelsVisible(value)),
     showCounts: updateWorkspaceHeaders,
-    showGrid: value => forEachCanvas(canvas => canvas.setGridVisible(value)),
+    showGrid: value => {
+        forEachCanvas(canvas => canvas.setGridVisible(value));
+        updateGridSnapping();
+    },
+    snapToGrid: updateGridSnapping,
     fiedlerColoring: value => showFiedler(value, fiedler => fiedler.setColoring(value)),
     showFiedlerVector: value => showFiedler(value, fiedler => fiedler.setPanelVisible(value)),
     darkMode: setDarkMode,

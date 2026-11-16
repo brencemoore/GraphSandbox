@@ -34,7 +34,12 @@ const Workspace = (() => {
         const workspace = { number, name: `Graph ${number}`, root, tab, canvas, cy };
 
         workspace.history = GraphHistory.create(cy, () => callbacks.onHistoryChange(workspace));
-        workspace.tools = GraphTools.create(cy, workspace.history, EdgePreview.create(part(root, "edge-preview")));
+        workspace.tools = GraphTools.create(
+            cy,
+            workspace.history,
+            EdgePreview.create(part(root, "edge-preview")),
+            canvas.snapPosition,
+        );
         workspace.summary = GraphSummary.create(
             cy,
             [part(root, "counts"), tab.querySelector("[data-role='tab-counts']")],

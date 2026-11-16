@@ -133,6 +133,7 @@ Settings are saved in your browser and come back when you reopen the page.
 - **Analysis:** turn automatic updates on or off.
 - **Names:** default names for new nodes and edges: numbers (`1, 2`), letters (`a, b`), capitals (`A, B`), or a prefix of your choice (`v1, v2`, `e1, e2`). Edges can also have no name. Changing a style offers to rename the existing nodes or edges.
 - **Appearance:** labels, the node and edge counts over the canvas, the dot grid, and dark mode.
+- **Grid snapping:** new and moved nodes land on the grid's dots. Turning it on moves the existing nodes onto the grid (undo puts them back); turning it off leaves every node where it is. It is only available while the grid is shown, and hiding the grid turns it off.
 - **Fiedler vector:** color the nodes by the Fiedler vector (the Laplacian eigenvector for the second-smallest eigenvalue λ₂), and show its values in the canvas's top-right corner.
   - Positive entries are red and negative entries blue. Entries near 0 are almost white, and larger entries are darker.
   - The list follows the node order, like the Spectral tab's matrices, with each node's color; hover a row to highlight its node. Long lists scroll.
