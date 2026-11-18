@@ -198,6 +198,8 @@ const SettingsDialog = (() => {
             input.addEventListener(input.type === "text" ? "input" : "change", onInput);
         });
 
+        dialog.querySelectorAll("[data-bs-toggle='popover']").forEach(icon => new bootstrap.Popover(icon));
+
         dialog.addEventListener("show.bs.modal", onShow);
         document.getElementById("saveSettings").addEventListener("click", save);
     }

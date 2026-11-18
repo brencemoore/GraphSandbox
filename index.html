@@ -601,7 +601,7 @@
 
                     <h6>Analysis</h6>
 
-                    <div class="form-check form-switch">
+                    <div class="form-check form-switch mb-4">
 
                         <input
                             class="form-check-input"
@@ -615,10 +615,17 @@
                             Update results automatically when the graph changes
                         </label>
 
-                    </div>
+                        <a
+                            class="text-body-secondary ms-1"
+                            tabindex="0"
+                            role="button"
+                            data-bs-toggle="popover"
+                            data-bs-trigger="focus"
+                            data-bs-content="Recalculating after every edit can slow the page down on large graphs. When this is off, results update when you open the panel, switch tabs or press Refresh."
+                            aria-label="About automatic updates">
+                            <i class="bi bi-info-circle"></i>
+                        </a>
 
-                    <div class="form-text mb-4">
-                        Recalculating after every edit can slow the page down on large graphs. When this is off, results update when you open the panel, switch tabs or press Refresh.
                     </div>
 
 
@@ -879,6 +886,17 @@
                             Color nodes by the Fiedler vector
                         </label>
 
+                        <a
+                            class="text-body-secondary ms-1"
+                            tabindex="0"
+                            role="button"
+                            data-bs-toggle="popover"
+                            data-bs-trigger="focus"
+                            data-bs-content="The Fiedler vector is the Laplacian eigenvector for λ₂. Positive entries are red, negative blue, and larger entries are darker. Both Fiedler options recalculate after every edit, which can slow the page down on large graphs."
+                            aria-label="About the Fiedler vector">
+                            <i class="bi bi-info-circle"></i>
+                        </a>
+
                     </div>
 
                     <div class="form-check form-switch">
@@ -895,10 +913,6 @@
                             Show the Fiedler vector on the canvas
                         </label>
 
-                    </div>
-
-                    <div class="form-text mb-2">
-                        The Fiedler vector is the Laplacian eigenvector for λ₂. Positive entries are red, negative blue, and larger entries are darker. Both options recalculate after every edit, which can slow the page down on large graphs.
                     </div>
 
                     <div class="form-check form-switch">
