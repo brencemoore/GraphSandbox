@@ -68,7 +68,7 @@
 
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="css/style.css?v=202611180033">
+    <link rel="stylesheet" href="css/style.css?v=202611180049">
 </head>
 
 <body class="app-shell d-flex flex-column overflow-hidden">
@@ -601,7 +601,7 @@
 
                     <h6>Analysis</h6>
 
-                    <div class="form-check form-switch">
+                    <div class="form-check form-switch mb-4">
 
                         <input
                             class="form-check-input"
@@ -615,10 +615,17 @@
                             Update results automatically when the graph changes
                         </label>
 
-                    </div>
+                        <a
+                            class="text-body-secondary ms-1"
+                            tabindex="0"
+                            role="button"
+                            data-bs-toggle="popover"
+                            data-bs-trigger="focus"
+                            data-bs-content="Recalculating after every edit can slow the page down on large graphs. When this is off, results update when you open the panel, switch tabs or press Refresh."
+                            aria-label="About automatic updates">
+                            <i class="bi bi-info-circle"></i>
+                        </a>
 
-                    <div class="form-text mb-4">
-                        Recalculating after every edit can slow the page down on large graphs. When this is off, results update when you open the panel, switch tabs or press Refresh.
                     </div>
 
 
@@ -879,6 +886,17 @@
                             Color nodes by the Fiedler vector
                         </label>
 
+                        <a
+                            class="text-body-secondary ms-1"
+                            tabindex="0"
+                            role="button"
+                            data-bs-toggle="popover"
+                            data-bs-trigger="focus"
+                            data-bs-content="The Fiedler vector is the Laplacian eigenvector for λ₂. Positive entries are red, negative blue, and larger entries are darker. This recalculates after every edit, which can slow the page down on large graphs."
+                            aria-label="About Fiedler vector coloring">
+                            <i class="bi bi-info-circle"></i>
+                        </a>
+
                     </div>
 
                     <div class="form-check form-switch">
@@ -895,10 +913,17 @@
                             Show the Fiedler vector on the canvas
                         </label>
 
-                    </div>
+                        <a
+                            class="text-body-secondary ms-1"
+                            tabindex="0"
+                            role="button"
+                            data-bs-toggle="popover"
+                            data-bs-trigger="focus"
+                            data-bs-content="Lists each node's Fiedler vector entry, with its color, in the canvas's top-right corner. Hover a row to highlight its node. This recalculates after every edit, which can slow the page down on large graphs."
+                            aria-label="About the Fiedler vector list">
+                            <i class="bi bi-info-circle"></i>
+                        </a>
 
-                    <div class="form-text mb-2">
-                        The Fiedler vector is the Laplacian eigenvector for λ₂. Positive entries are red, negative blue, and larger entries are darker. Both options recalculate after every edit, which can slow the page down on large graphs.
                     </div>
 
                     <div class="form-check form-switch">
@@ -1559,29 +1584,29 @@
     <script defer src="js/pyodide/pyodide.js"></script>
 
     <!-- App files carry ?v= so a deploy never mixes new and cached files; npm run stamp updates it -->
-    <script defer src="js/settings.js?v=202611180033"></script>
-    <script defer src="js/graph/naming.js?v=202611180033"></script>
-    <script defer src="js/graph/highlight-box.js?v=202611180033"></script>
-    <script defer src="js/graph/edge-preview.js?v=202611180033"></script>
-    <script defer src="js/graph/canvas.js?v=202611180033"></script>
-    <script defer src="js/graph/history.js?v=202611180033"></script>
-    <script defer src="js/graph/tools.js?v=202611180033"></script>
-    <script defer src="js/graph/inspector.js?v=202611180033"></script>
-    <script defer src="js/graph/fiedler-view.js?v=202611180033"></script>
-    <script defer src="js/graph/summary.js?v=202611180033"></script>
-    <script defer src="js/graph/workspace.js?v=202611180033"></script>
-    <script defer src="js/analysis/python-engine.js?v=202611180033"></script>
-    <script defer src="js/analysis/result-views.js?v=202611180033"></script>
-    <script defer src="js/analysis/analysis-panel.js?v=202611180033"></script>
-    <script defer src="js/graph/graph-data.js?v=202611180033"></script>
-    <script defer src="js/notify.js?v=202611180033"></script>
-    <script defer src="js/confirm-dialog.js?v=202611180033"></script>
-    <script defer src="js/settings-dialog.js?v=202611180033"></script>
-    <script defer src="js/save-dialog.js?v=202611180033"></script>
-    <script defer src="js/open-graph.js?v=202611180033"></script>
-    <script defer src="js/workspaces.js?v=202611180033"></script>
-    <script defer src="js/isomorphism-dialog.js?v=202611180033"></script>
-    <script defer src="js/main.js?v=202611180033"></script>
+    <script defer src="js/settings.js?v=202611180049"></script>
+    <script defer src="js/graph/naming.js?v=202611180049"></script>
+    <script defer src="js/graph/highlight-box.js?v=202611180049"></script>
+    <script defer src="js/graph/edge-preview.js?v=202611180049"></script>
+    <script defer src="js/graph/canvas.js?v=202611180049"></script>
+    <script defer src="js/graph/history.js?v=202611180049"></script>
+    <script defer src="js/graph/tools.js?v=202611180049"></script>
+    <script defer src="js/graph/inspector.js?v=202611180049"></script>
+    <script defer src="js/graph/fiedler-view.js?v=202611180049"></script>
+    <script defer src="js/graph/summary.js?v=202611180049"></script>
+    <script defer src="js/graph/workspace.js?v=202611180049"></script>
+    <script defer src="js/analysis/python-engine.js?v=202611180049"></script>
+    <script defer src="js/analysis/result-views.js?v=202611180049"></script>
+    <script defer src="js/analysis/analysis-panel.js?v=202611180049"></script>
+    <script defer src="js/graph/graph-data.js?v=202611180049"></script>
+    <script defer src="js/notify.js?v=202611180049"></script>
+    <script defer src="js/confirm-dialog.js?v=202611180049"></script>
+    <script defer src="js/settings-dialog.js?v=202611180049"></script>
+    <script defer src="js/save-dialog.js?v=202611180049"></script>
+    <script defer src="js/open-graph.js?v=202611180049"></script>
+    <script defer src="js/workspaces.js?v=202611180049"></script>
+    <script defer src="js/isomorphism-dialog.js?v=202611180049"></script>
+    <script defer src="js/main.js?v=202611180049"></script>
 
 </body>
 
