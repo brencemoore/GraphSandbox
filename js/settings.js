@@ -6,7 +6,7 @@ const AppSettings = (() => {
     const STORAGE_KEY = "graphsandbox.settings";
 
     const DEFAULTS = {
-        autoUpdate: true,
+        autoUpdate: false,
         nodeNames: "numbers",
         nodePrefix: "v",
         edgeNames: "none",

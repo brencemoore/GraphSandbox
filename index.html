@@ -601,7 +601,7 @@
 
                     <h6>Analysis</h6>
 
-                    <div class="form-check form-switch mb-4">
+                    <div class="form-check form-switch">
 
                         <input
                             class="form-check-input"
@@ -615,6 +615,10 @@
                             Update results automatically when the graph changes
                         </label>
 
+                    </div>
+
+                    <div class="form-text mb-4">
+                        Recalculating after every edit can slow the page down on large graphs. When this is off, results update when you open the panel, switch tabs or press Refresh.
                     </div>
 
 
@@ -894,7 +898,7 @@
                     </div>
 
                     <div class="form-text mb-2">
-                        The Fiedler vector is the Laplacian eigenvector for λ₂. Positive entries are red, negative blue, and larger entries are darker.
+                        The Fiedler vector is the Laplacian eigenvector for λ₂. Positive entries are red, negative blue, and larger entries are darker. Both options recalculate after every edit, which can slow the page down on large graphs.
                     </div>
 
                     <div class="form-check form-switch">
@@ -1402,7 +1406,7 @@
                         <li>
                             <i class="bi bi-bar-chart-line text-accent me-2"></i>
                             <strong>Analyze:</strong>
-                            metrics, Euler and Hamilton routes (with an example or the reason there is none), centrality, matrices and eigenvalues of the graph, updated as you edit.
+                            metrics, Euler and Hamilton routes (with an example or the reason there is none), centrality, matrices and eigenvalues of the graph. Press Refresh after editing, or turn on automatic updates in Settings.
                         </li>
                     </ul>
 
