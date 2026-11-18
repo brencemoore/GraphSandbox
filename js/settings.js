@@ -6,7 +6,7 @@ const AppSettings = (() => {
     const STORAGE_KEY = "graphsandbox.settings";
 
     const DEFAULTS = {
-        autoUpdate: true,
+        autoUpdate: false,
         nodeNames: "numbers",
         nodePrefix: "v",
         edgeNames: "none",
@@ -14,6 +14,7 @@ const AppSettings = (() => {
         showLabels: true,
         showCounts: true,
         showGrid: true,
+        snapToGrid: false,
         fiedlerColoring: false,
         showFiedlerVector: false,
         darkMode: false,

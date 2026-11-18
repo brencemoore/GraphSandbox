@@ -45,6 +45,22 @@ const SettingsDialog = (() => {
     function onInput(event) {
         draft[event.target.dataset.setting] = inputValue(event.target);
         updateNamingPreviews();
+        updateSnapInput();
+    }
+
+
+    // Grid
+
+    // Snapping needs the grid, so hiding the grid turns snapping off and disables its switch.
+    function updateSnapInput() {
+        const input = document.getElementById("snapToGridSetting");
+
+        if (!draft.showGrid) {
+            draft.snapToGrid = false;
+        }
+
+        input.checked = draft.snapToGrid;
+        input.disabled = !draft.showGrid;
     }
 
 
@@ -168,6 +184,7 @@ const SettingsDialog = (() => {
         keepDraft = false;
         dialog.querySelectorAll("[data-setting]").forEach(showDraft);
         updateNamingPreviews();
+        updateSnapInput();
     }
 
 

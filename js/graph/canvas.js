@@ -152,6 +152,7 @@ const GraphCanvas = (() => {
 
     function create(container) {
         let labelsVisible = true;
+        let snapping = false;
 
         const cy = cytoscape({
             container,
@@ -197,6 +198,22 @@ const GraphCanvas = (() => {
 
         function setGridVisible(visible) {
             container.classList.toggle("show-grid", visible);
+        }
+
+
+        function setSnapToGrid(enabled) {
+            snapping = enabled;
+        }
+
+
+        // The grid's dots sit in the middle of each square, so positions snap to those centers.
+        function snapPosition(position) {
+            if (!snapping) {
+                return position;
+            }
+
+            const snap = value => Math.round((value - GRID_SIZE / 2) / GRID_SIZE) * GRID_SIZE + GRID_SIZE / 2;
+            return { x: snap(position.x), y: snap(position.y) };
         }
 
 
@@ -284,6 +301,8 @@ const GraphCanvas = (() => {
             setLabelsVisible,
             setNodeColors,
             setGridVisible,
+            setSnapToGrid,
+            snapPosition,
             zoomIn,
             zoomOut,
             zoomPercent,

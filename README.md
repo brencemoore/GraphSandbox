@@ -2,7 +2,7 @@
 
 **Try it online: [brencemoore.github.io/GraphSandbox](https://brencemoore.github.io/GraphSandbox/)**
 
-GraphSandbox is a free browser app for drawing simple graphs and analyzing them. Click to add nodes, connect them with edges, give edges values, and see the graph's matrices, eigenvalues, centralities and structural properties update as you edit. Graphs can be saved as images or as data files that other graph tools, such as NetworkX, Gephi and igraph, can open.
+GraphSandbox is a free browser app for drawing simple graphs and analyzing them. Click to add nodes, connect them with edges, give edges values, and see the graph's matrices, eigenvalues, centralities and structural properties. Graphs can be saved as images or as data files that other graph tools, such as NetworkX, Gephi and igraph, can open.
 
 It's meant for exploring graph theory by hand: build a small graph, change it, and watch the math change with it.
 
@@ -66,7 +66,7 @@ Select a single node or edge and a small panel appears in the top-left of the ca
 
 ### Analysis
 
-Click **Analyze** to open the analysis panel. Results update as you edit the graph (this can be turned off in Settings) and whenever you pick a different output.
+Click **Analyze** to open the analysis panel. Results are calculated when the panel opens and whenever you pick a different output; after editing, press **Refresh**. Turn on automatic updates in Settings to recalculate after every edit.
 
 | Tab | Contents |
 |---|---|
@@ -130,13 +130,15 @@ The **?** button in the header (on phones: the File menu → **Help & about**) g
 Settings are saved in your browser and come back when you reopen the page.
 
 - **Applying changes:** changes apply when you press **Save**; **Cancel** discards them.
-- **Analysis:** turn automatic updates on or off.
+- **Analysis:** turn automatic updates on or off (off by default). Recalculating after every edit can slow the page down on large graphs.
 - **Names:** default names for new nodes and edges: numbers (`1, 2`), letters (`a, b`), capitals (`A, B`), or a prefix of your choice (`v1, v2`, `e1, e2`). Edges can also have no name. Changing a style offers to rename the existing nodes or edges.
 - **Appearance:** labels, the node and edge counts over the canvas, the dot grid, and dark mode.
+- **Grid snapping:** new and moved nodes land on the grid's dots. Turning it on moves the existing nodes onto the grid (undo puts them back); turning it off leaves every node where it is. It is only available while the grid is shown, and hiding the grid turns it off.
 - **Fiedler vector:** color the nodes by the Fiedler vector (the Laplacian eigenvector for the second-smallest eigenvalue λ₂), and show its values in the canvas's top-right corner.
   - Positive entries are red and negative entries blue. Entries near 0 are almost white, and larger entries are darker.
-  - The list runs from the largest positive entry to the largest negative one, each with its node's color; hover a row to highlight its node.
+  - The list follows the node order, like the Spectral tab's matrices, with each node's color; hover a row to highlight its node. Long lists scroll.
   - The signs split the graph into two well-connected halves, which is the idea behind spectral clustering.
+  - Both options are off by default. They recalculate after every edit, which can slow the page down on large graphs.
 
 ### Phones and Tablets
 

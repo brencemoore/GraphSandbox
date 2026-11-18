@@ -68,7 +68,7 @@
 
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="css/style.css?v=202611152142">
+    <link rel="stylesheet" href="css/style.css?v=202611180033">
 </head>
 
 <body class="app-shell d-flex flex-column overflow-hidden">
@@ -601,7 +601,7 @@
 
                     <h6>Analysis</h6>
 
-                    <div class="form-check form-switch mb-4">
+                    <div class="form-check form-switch">
 
                         <input
                             class="form-check-input"
@@ -615,6 +615,10 @@
                             Update results automatically when the graph changes
                         </label>
 
+                    </div>
+
+                    <div class="form-text mb-4">
+                        Recalculating after every edit can slow the page down on large graphs. When this is off, results update when you open the panel, switch tabs or press Refresh.
                     </div>
 
 
@@ -850,6 +854,22 @@
                         <input
                             class="form-check-input"
                             type="checkbox"
+                            id="snapToGridSetting"
+                            data-setting="snapToGrid">
+
+                        <label
+                            class="form-check-label"
+                            for="snapToGridSetting">
+                            Snap nodes to the grid
+                        </label>
+
+                    </div>
+
+                    <div class="form-check form-switch">
+
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
                             id="fiedlerColoringSetting"
                             data-setting="fiedlerColoring">
 
@@ -878,7 +898,7 @@
                     </div>
 
                     <div class="form-text mb-2">
-                        The Fiedler vector is the Laplacian eigenvector for λ₂. Positive entries are red, negative blue, and larger entries are darker.
+                        The Fiedler vector is the Laplacian eigenvector for λ₂. Positive entries are red, negative blue, and larger entries are darker. Both options recalculate after every edit, which can slow the page down on large graphs.
                     </div>
 
                     <div class="form-check form-switch">
@@ -1167,7 +1187,7 @@
 
             <!-- Fiedler Vector: turned on in Settings (js/graph/fiedler-view.js); before the inspector so it stays on top -->
             <div
-                class="position-absolute top-0 end-0 bottom-50 m-3 m-md-4 d-flex flex-column align-items-end pe-none d-none"
+                class="position-absolute top-0 end-0 bottom-0 m-3 m-md-4 pb-5 d-flex flex-column align-items-end pe-none d-none"
                 data-role="fiedler">
 
                 <div class="card shadow-sm small pe-auto overflow-auto mh-100">
@@ -1381,12 +1401,12 @@
                         <li class="mb-2">
                             <i class="bi bi-gear text-body-secondary me-2"></i>
                             <strong>Settings:</strong>
-                            default names, labels, grid, dark mode, automatic analysis updates, and Fiedler vector coloring with an optional list of its values on the canvas.
+                            default names, labels, grid and grid snapping, dark mode, automatic analysis updates, and Fiedler vector coloring with an optional list of its values on the canvas.
                         </li>
                         <li>
                             <i class="bi bi-bar-chart-line text-accent me-2"></i>
                             <strong>Analyze:</strong>
-                            metrics, Euler and Hamilton routes (with an example or the reason there is none), centrality, matrices and eigenvalues of the graph, updated as you edit.
+                            metrics, Euler and Hamilton routes (with an example or the reason there is none), centrality, matrices and eigenvalues of the graph. Press Refresh after editing, or turn on automatic updates in Settings.
                         </li>
                     </ul>
 
@@ -1539,29 +1559,29 @@
     <script defer src="js/pyodide/pyodide.js"></script>
 
     <!-- App files carry ?v= so a deploy never mixes new and cached files; npm run stamp updates it -->
-    <script defer src="js/settings.js?v=202611152142"></script>
-    <script defer src="js/graph/naming.js?v=202611152142"></script>
-    <script defer src="js/graph/highlight-box.js?v=202611152142"></script>
-    <script defer src="js/graph/edge-preview.js?v=202611152142"></script>
-    <script defer src="js/graph/canvas.js?v=202611152142"></script>
-    <script defer src="js/graph/history.js?v=202611152142"></script>
-    <script defer src="js/graph/tools.js?v=202611152142"></script>
-    <script defer src="js/graph/inspector.js?v=202611152142"></script>
-    <script defer src="js/graph/fiedler-view.js?v=202611152142"></script>
-    <script defer src="js/graph/summary.js?v=202611152142"></script>
-    <script defer src="js/graph/workspace.js?v=202611152142"></script>
-    <script defer src="js/analysis/python-engine.js?v=202611152142"></script>
-    <script defer src="js/analysis/result-views.js?v=202611152142"></script>
-    <script defer src="js/analysis/analysis-panel.js?v=202611152142"></script>
-    <script defer src="js/graph/graph-data.js?v=202611152142"></script>
-    <script defer src="js/notify.js?v=202611152142"></script>
-    <script defer src="js/confirm-dialog.js?v=202611152142"></script>
-    <script defer src="js/settings-dialog.js?v=202611152142"></script>
-    <script defer src="js/save-dialog.js?v=202611152142"></script>
-    <script defer src="js/open-graph.js?v=202611152142"></script>
-    <script defer src="js/workspaces.js?v=202611152142"></script>
-    <script defer src="js/isomorphism-dialog.js?v=202611152142"></script>
-    <script defer src="js/main.js?v=202611152142"></script>
+    <script defer src="js/settings.js?v=202611180033"></script>
+    <script defer src="js/graph/naming.js?v=202611180033"></script>
+    <script defer src="js/graph/highlight-box.js?v=202611180033"></script>
+    <script defer src="js/graph/edge-preview.js?v=202611180033"></script>
+    <script defer src="js/graph/canvas.js?v=202611180033"></script>
+    <script defer src="js/graph/history.js?v=202611180033"></script>
+    <script defer src="js/graph/tools.js?v=202611180033"></script>
+    <script defer src="js/graph/inspector.js?v=202611180033"></script>
+    <script defer src="js/graph/fiedler-view.js?v=202611180033"></script>
+    <script defer src="js/graph/summary.js?v=202611180033"></script>
+    <script defer src="js/graph/workspace.js?v=202611180033"></script>
+    <script defer src="js/analysis/python-engine.js?v=202611180033"></script>
+    <script defer src="js/analysis/result-views.js?v=202611180033"></script>
+    <script defer src="js/analysis/analysis-panel.js?v=202611180033"></script>
+    <script defer src="js/graph/graph-data.js?v=202611180033"></script>
+    <script defer src="js/notify.js?v=202611180033"></script>
+    <script defer src="js/confirm-dialog.js?v=202611180033"></script>
+    <script defer src="js/settings-dialog.js?v=202611180033"></script>
+    <script defer src="js/save-dialog.js?v=202611180033"></script>
+    <script defer src="js/open-graph.js?v=202611180033"></script>
+    <script defer src="js/workspaces.js?v=202611180033"></script>
+    <script defer src="js/isomorphism-dialog.js?v=202611180033"></script>
+    <script defer src="js/main.js?v=202611180033"></script>
 
 </body>
 

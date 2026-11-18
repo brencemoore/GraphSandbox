@@ -29,7 +29,8 @@ const GraphTools = (() => {
     }
 
 
-    function create(cy, history, preview) {
+    // snapPosition moves a position onto the grid while grid snapping is on (GraphCanvas).
+    function create(cy, history, preview, snapPosition) {
         let activeTool = "select";
         let edgeSource = null;
         let dragStartState = null;
@@ -44,7 +45,28 @@ const GraphTools = (() => {
             const label = GraphNaming.nextNodeName(cy, AppSettings.get("nodeNames"), AppSettings.get("nodePrefix")) || id;
 
             history.record();
-            cy.add({ group: "nodes", data: { id, label }, position });
+            cy.add({ group: "nodes", data: { id, label }, position: snapPosition(position) });
+        }
+
+
+        function snapNodes(nodes) {
+            nodes.forEach(node => node.position(snapPosition(node.position())));
+        }
+
+
+        // Called when grid snapping is turned on; undo puts the nodes back.
+        function snapAllToGrid() {
+            const before = history.snapshot();
+            const moved = cy.nodes().filter(node => {
+                const { x, y } = node.position();
+                const snapped = snapPosition({ x, y });
+                return snapped.x !== x || snapped.y !== y;
+            });
+
+            if (moved.nonempty()) {
+                snapNodes(moved);
+                history.record(before);
+            }
         }
 
 
@@ -360,7 +382,8 @@ const GraphTools = (() => {
         }
 
 
-        function onDropNode() {
+        function onDropNode(event) {
+            snapNodes(event.target);
             history.record(dragStartState);
         }
 
@@ -414,6 +437,7 @@ const GraphTools = (() => {
 
             if (edgeDrag.moved) {
                 const edge = edgeDrag.edge;
+                snapNodes(edgeDrag.nodes);
                 history.record(edgeDrag.startState);
                 setTimeout(() => edge.selectify());
             }
@@ -455,6 +479,7 @@ const GraphTools = (() => {
             replaceGraph,
             renameNodes,
             renameEdges,
+            snapAllToGrid,
             undo,
             redo,
         };
